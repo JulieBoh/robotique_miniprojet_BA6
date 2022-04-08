@@ -18,8 +18,6 @@ static THD_FUNCTION(PiRegulator, arg) {
 
     systime_t time;
 
-    int16_t speed = 0;
-
     while(1){
         time = chVTGetSystemTime();
 

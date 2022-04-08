@@ -33,6 +33,8 @@ static THD_FUNCTION(CaptureImage, arg) {
 		wait_image_ready();
 		//signals an image has been captured
 		chBSemSignal(&image_ready_sem);
+        set_front_led(2);
+
     }
 }
 
@@ -55,6 +57,8 @@ static THD_FUNCTION(ProcessImage, arg) {
 		/*
 		*	To complete
 		*/
+        //set_body_led(2);
+
     }
 }
 

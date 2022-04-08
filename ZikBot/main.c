@@ -36,7 +36,6 @@ static void serial_start(void)
 
 int main(void)
 {
-
     halInit();
     chSysInit();
     mpu_init();
@@ -51,13 +50,13 @@ int main(void)
 	//inits the motors
 	motors_init();
 
-	//stars the threads for the pi regulator and the processing of the image
+	//stars the threads
 	pi_regulator_start();
 	process_image_start();
 
     /* Infinite loop. */
     while (1) {
-    	chprintf((BaseSequentialStream *)&SD3, "coucou");
+    	chprintf((BaseSequentialStream *)&SD3, "while \n");
     	//waits 1 second
         chThdSleepMilliseconds(1000);
     }
