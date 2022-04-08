@@ -1,4 +1,4 @@
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 1
 
 
    1              		.cpu cortex-m4
@@ -58,7 +58,7 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
   55              	.LBE2:
   56              		.loc 1 11 0
   57 0012 0DD0     		beq	.L13
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 2
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 2
 
 
   58              	.LVL4:
@@ -118,7 +118,7 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  112              		.file 2 "/Applications/Eclipse_e-puck2.app/Contents/Eclipse_e-puck2/Tools/gcc-arm-none-eabi-7-2017
  113              		.file 3 "/Applications/Eclipse_e-puck2.app/Contents/Eclipse_e-puck2/Tools/gcc-arm-none-eabi-7-2017
  114              		.file 4 "/Applications/Eclipse_e-puck2.app/Contents/Eclipse_e-puck2/Tools/gcc-arm-none-eabi-7-2017
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 3
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 3
 
 
  115              		.section	.debug_info,"",%progbits
@@ -128,17 +128,17 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  119 0006 00000000 		.4byte	.Ldebug_abbrev0
  120 000a 04       		.byte	0x4
  121 000b 01       		.uleb128 0x1
- 122 000c B7000000 		.4byte	.LASF18
+ 122 000c 6A000000 		.4byte	.LASF18
  123 0010 0C       		.byte	0xc
- 124 0011 76020000 		.4byte	.LASF19
- 125 0015 29000000 		.4byte	.LASF20
+ 124 0011 84020000 		.4byte	.LASF19
+ 125 0015 BB010000 		.4byte	.LASF20
  126 0019 18000000 		.4byte	.Ldebug_ranges0+0x18
  127 001d 00000000 		.4byte	0
  128 0021 00000000 		.4byte	.Ldebug_line0
  129 0025 02       		.uleb128 0x2
  130 0026 01       		.byte	0x1
  131 0027 06       		.byte	0x6
- 132 0028 63020000 		.4byte	.LASF0
+ 132 0028 71020000 		.4byte	.LASF0
  133 002c 03       		.uleb128 0x3
  134 002d 00000000 		.4byte	.LASF3
  135 0031 02       		.byte	0x2
@@ -151,34 +151,34 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  142 003e 02       		.uleb128 0x2
  143 003f 02       		.byte	0x2
  144 0040 05       		.byte	0x5
- 145 0041 35020000 		.4byte	.LASF2
+ 145 0041 43020000 		.4byte	.LASF2
  146 0045 03       		.uleb128 0x3
- 147 0046 AC000000 		.4byte	.LASF4
+ 147 0046 5F000000 		.4byte	.LASF4
  148 004a 02       		.byte	0x2
  149 004b 39       		.byte	0x39
  150 004c 50000000 		.4byte	0x50
  151 0050 02       		.uleb128 0x2
  152 0051 02       		.byte	0x2
  153 0052 07       		.byte	0x7
- 154 0053 88000000 		.4byte	.LASF5
+ 154 0053 3B000000 		.4byte	.LASF5
  155 0057 02       		.uleb128 0x2
  156 0058 04       		.byte	0x4
  157 0059 05       		.byte	0x5
- 158 005a 4E020000 		.4byte	.LASF6
+ 158 005a 5C020000 		.4byte	.LASF6
  159 005e 02       		.uleb128 0x2
  160 005f 04       		.byte	0x4
  161 0060 07       		.byte	0x7
- 162 0061 76000000 		.4byte	.LASF7
+ 162 0061 29000000 		.4byte	.LASF7
  163 0065 02       		.uleb128 0x2
  164 0066 08       		.byte	0x8
  165 0067 05       		.byte	0x5
- 166 0068 27020000 		.4byte	.LASF8
+ 166 0068 35020000 		.4byte	.LASF8
  167 006c 02       		.uleb128 0x2
  168 006d 08       		.byte	0x8
  169 006e 07       		.byte	0x7
- 170 006f 08020000 		.4byte	.LASF9
+ 170 006f 16020000 		.4byte	.LASF9
  171 0073 04       		.uleb128 0x4
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 4
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 4
 
 
  172 0074 04       		.byte	0x4
@@ -187,14 +187,14 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  175 007a 02       		.uleb128 0x2
  176 007b 04       		.byte	0x4
  177 007c 07       		.byte	0x7
- 178 007d FB010000 		.4byte	.LASF10
+ 178 007d AE010000 		.4byte	.LASF10
  179 0081 03       		.uleb128 0x3
- 180 0082 1F020000 		.4byte	.LASF11
+ 180 0082 2D020000 		.4byte	.LASF11
  181 0086 03       		.byte	0x3
  182 0087 18       		.byte	0x18
  183 0088 2C000000 		.4byte	0x2c
  184 008c 03       		.uleb128 0x3
- 185 008d 3F020000 		.4byte	.LASF12
+ 185 008d 4D020000 		.4byte	.LASF12
  186 0091 03       		.byte	0x3
  187 0092 24       		.byte	0x24
  188 0093 45000000 		.4byte	0x45
@@ -206,9 +206,9 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  194 00a2 02       		.uleb128 0x2
  195 00a3 08       		.byte	0x8
  196 00a4 04       		.byte	0x4
- 197 00a5 57020000 		.4byte	.LASF14
+ 197 00a5 65020000 		.4byte	.LASF14
  198 00a9 05       		.uleb128 0x5
- 199 00aa 48020000 		.4byte	.LASF21
+ 199 00aa 56020000 		.4byte	.LASF21
  200 00ae 01       		.byte	0x1
  201 00af 07       		.byte	0x7
  202 00b0 8C000000 		.4byte	0x8c
@@ -230,7 +230,7 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  218 00d8 2C010000 		.4byte	0x12c
  219 00dc 21000000 		.4byte	.LLST1
  220 00e0 06       		.uleb128 0x6
- 221 00e1 6F020000 		.4byte	.LASF17
+ 221 00e1 7D020000 		.4byte	.LASF17
  222 00e5 01       		.byte	0x1
  223 00e6 07       		.byte	0x7
  224 00e7 97000000 		.4byte	0x97
@@ -238,7 +238,7 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  226 00ef 07       		.uleb128 0x7
  227 00f0 7000     		.ascii	"p\000"
  228 00f2 01       		.byte	0x1
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 5
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 5
 
 
  229 00f3 09       		.byte	0x9
@@ -272,8 +272,8 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  257 0134 04       		.byte	0x4
  258 0135 81000000 		.4byte	0x81
  259 0139 0C       		.uleb128 0xc
- 260 013a 9B000000 		.4byte	.LASF22
- 261 013e 9B000000 		.4byte	.LASF22
+ 260 013a 4E000000 		.4byte	.LASF22
+ 261 013e 4E000000 		.4byte	.LASF22
  262 0142 00       		.byte	0
  263              		.section	.debug_abbrev,"",%progbits
  264              	.Ldebug_abbrev0:
@@ -298,7 +298,7 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  283 0012 00       		.byte	0
  284 0013 02       		.uleb128 0x2
  285 0014 24       		.uleb128 0x24
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 6
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 6
 
 
  286 0015 00       		.byte	0
@@ -358,7 +358,7 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  340 004b 9742     		.uleb128 0x2117
  341 004d 19       		.uleb128 0x19
  342 004e 01       		.uleb128 0x1
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 7
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 7
 
 
  343 004f 13       		.uleb128 0x13
@@ -418,7 +418,7 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  397 0087 0B       		.uleb128 0xb
  398 0088 0B       		.uleb128 0xb
  399 0089 49       		.uleb128 0x49
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 8
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 8
 
 
  400 008a 13       		.uleb128 0x13
@@ -478,7 +478,7 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  454 0046 08000000 		.4byte	.LVL1
  455 004a 0100     		.2byte	0x1
  456 004c 52       		.byte	0x52
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 9
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 9
 
 
  457 004d 08000000 		.4byte	.LVL1
@@ -538,7 +538,7 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  511 00c8 00000000 		.4byte	0
  512              	.LLST5:
  513 00cc 1C000000 		.4byte	.LVL6
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 10
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 10
 
 
  514 00d0 28000000 		.4byte	.LVL8
@@ -598,7 +598,7 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  565      FB0E0D00 
  565      01010101 
  566              	.LASF3:
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 11
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 11
 
 
  567 0000 5F5F7569 		.ascii	"__uint8_t\000"
@@ -618,141 +618,141 @@ ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 1
  575      676E6564 
  575      20636861 
  575      7200
- 576              	.LASF20:
- 577 0029 2F557365 		.ascii	"/Users/juliebohning/Desktop/BA_6/Robotique/TP_ordi."
- 577      72732F6A 
- 577      756C6965 
- 577      626F686E 
- 577      696E672F 
- 578 005c 6E6F7379 		.ascii	"nosync/TP4_CamReg/CamReg/\000"
- 578      6E632F54 
- 578      50345F43 
- 578      616D5265 
- 578      672F4361 
- 579              	.LASF7:
- 580 0076 6C6F6E67 		.ascii	"long unsigned int\000"
- 580      20756E73 
- 580      69676E65 
- 580      6420696E 
- 580      7400
- 581              	.LASF5:
- 582 0088 73686F72 		.ascii	"short unsigned int\000"
- 582      7420756E 
- 582      7369676E 
- 582      65642069 
- 582      6E7400
- 583              	.LASF22:
- 584 009b 5F5F7374 		.ascii	"__stack_chk_fail\000"
- 584      61636B5F 
- 584      63686B5F 
- 584      6661696C 
- 584      00
- 585              	.LASF4:
- 586 00ac 5F5F7569 		.ascii	"__uint16_t\000"
- 586      6E743136 
- 586      5F7400
- 587              	.LASF18:
- 588 00b7 474E5520 		.ascii	"GNU C11 7.2.1 20170904 (release) [ARM/embedded-7-br"
- 588      43313120 
- 588      372E322E 
- 588      31203230 
- 588      31373039 
- 589 00ea 616E6368 		.ascii	"anch revision 255204] -mcpu=cortex-m4 -mfloat-abi=h"
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 12
+ 576              	.LASF7:
+ 577 0029 6C6F6E67 		.ascii	"long unsigned int\000"
+ 577      20756E73 
+ 577      69676E65 
+ 577      6420696E 
+ 577      7400
+ 578              	.LASF5:
+ 579 003b 73686F72 		.ascii	"short unsigned int\000"
+ 579      7420756E 
+ 579      7369676E 
+ 579      65642069 
+ 579      6E7400
+ 580              	.LASF22:
+ 581 004e 5F5F7374 		.ascii	"__stack_chk_fail\000"
+ 581      61636B5F 
+ 581      63686B5F 
+ 581      6661696C 
+ 581      00
+ 582              	.LASF4:
+ 583 005f 5F5F7569 		.ascii	"__uint16_t\000"
+ 583      6E743136 
+ 583      5F7400
+ 584              	.LASF18:
+ 585 006a 474E5520 		.ascii	"GNU C11 7.2.1 20170904 (release) [ARM/embedded-7-br"
+ 585      43313120 
+ 585      372E322E 
+ 585      31203230 
+ 585      31373039 
+ 586 009d 616E6368 		.ascii	"anch revision 255204] -mcpu=cortex-m4 -mfloat-abi=h"
+ 586      20726576 
+ 586      6973696F 
+ 586      6E203235 
+ 586      35323034 
+ 587 00d0 61726420 		.ascii	"ard -mfpu=fpv4-sp-d16 -mno-thumb-interwork -mthumb "
+ 587      2D6D6670 
+ 587      753D6670 
+ 587      76342D73 
+ 587      702D6431 
+ 588 0103 2D676764 		.ascii	"-ggdb -O2 -fomit-frame-pointer -falign-functions=16"
+ 588      62202D4F 
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 12
 
 
- 589      20726576 
- 589      6973696F 
- 589      6E203235 
- 589      35323034 
- 590 011d 61726420 		.ascii	"ard -mfpu=fpv4-sp-d16 -mno-thumb-interwork -mthumb "
- 590      2D6D6670 
- 590      753D6670 
- 590      76342D73 
- 590      702D6431 
- 591 0150 2D676764 		.ascii	"-ggdb -O2 -fomit-frame-pointer -falign-functions=16"
- 591      62202D4F 
- 591      32202D66 
- 591      6F6D6974 
- 591      2D667261 
- 592 0183 202D666E 		.ascii	" -fno-strict-aliasing -fstack-protector-all -ffunct"
- 592      6F2D7374 
- 592      72696374 
- 592      2D616C69 
- 592      6173696E 
- 593 01b6 696F6E2D 		.ascii	"ion-sections -fdata-sections -fno-common -fsingle-p"
- 593      73656374 
- 593      696F6E73 
- 593      202D6664 
- 593      6174612D 
- 594 01e9 72656369 		.ascii	"recision-constant\000"
- 594      73696F6E 
- 594      2D636F6E 
- 594      7374616E 
- 594      7400
- 595              	.LASF10:
- 596 01fb 756E7369 		.ascii	"unsigned int\000"
- 596      676E6564 
- 596      20696E74 
- 596      00
+ 588      32202D66 
+ 588      6F6D6974 
+ 588      2D667261 
+ 589 0136 202D666E 		.ascii	" -fno-strict-aliasing -fstack-protector-all -ffunct"
+ 589      6F2D7374 
+ 589      72696374 
+ 589      2D616C69 
+ 589      6173696E 
+ 590 0169 696F6E2D 		.ascii	"ion-sections -fdata-sections -fno-common -fsingle-p"
+ 590      73656374 
+ 590      696F6E73 
+ 590      202D6664 
+ 590      6174612D 
+ 591 019c 72656369 		.ascii	"recision-constant\000"
+ 591      73696F6E 
+ 591      2D636F6E 
+ 591      7374616E 
+ 591      7400
+ 592              	.LASF10:
+ 593 01ae 756E7369 		.ascii	"unsigned int\000"
+ 593      676E6564 
+ 593      20696E74 
+ 593      00
+ 594              	.LASF20:
+ 595 01bb 2F557365 		.ascii	"/Users/juliebohning/Desktop/BA_6/Robotique/TP_ordi."
+ 595      72732F6A 
+ 595      756C6965 
+ 595      626F686E 
+ 595      696E672F 
+ 596 01ee 6E6F7379 		.ascii	"nosync/robotique_miniprojet_BA6/ZikBot/\000"
+ 596      6E632F72 
+ 596      6F626F74 
+ 596      69717565 
+ 596      5F6D696E 
  597              	.LASF9:
- 598 0208 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 598 0216 6C6F6E67 		.ascii	"long long unsigned int\000"
  598      206C6F6E 
  598      6720756E 
  598      7369676E 
  598      65642069 
  599              	.LASF11:
- 600 021f 75696E74 		.ascii	"uint8_t\000"
+ 600 022d 75696E74 		.ascii	"uint8_t\000"
  600      385F7400 
  601              	.LASF8:
- 602 0227 6C6F6E67 		.ascii	"long long int\000"
+ 602 0235 6C6F6E67 		.ascii	"long long int\000"
  602      206C6F6E 
  602      6720696E 
  602      7400
  603              	.LASF2:
- 604 0235 73686F72 		.ascii	"short int\000"
+ 604 0243 73686F72 		.ascii	"short int\000"
  604      7420696E 
  604      7400
  605              	.LASF12:
- 606 023f 75696E74 		.ascii	"uint16_t\000"
+ 606 024d 75696E74 		.ascii	"uint16_t\000"
  606      31365F74 
  606      00
  607              	.LASF21:
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 13
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 13
 
 
- 608 0248 63726331 		.ascii	"crc16\000"
+ 608 0256 63726331 		.ascii	"crc16\000"
  608      3600
  609              	.LASF6:
- 610 024e 6C6F6E67 		.ascii	"long int\000"
+ 610 025c 6C6F6E67 		.ascii	"long int\000"
  610      20696E74 
  610      00
  611              	.LASF14:
- 612 0257 6C6F6E67 		.ascii	"long double\000"
+ 612 0265 6C6F6E67 		.ascii	"long double\000"
  612      20646F75 
  612      626C6500 
  613              	.LASF0:
- 614 0263 7369676E 		.ascii	"signed char\000"
+ 614 0271 7369676E 		.ascii	"signed char\000"
  614      65642063 
  614      68617200 
  615              	.LASF17:
- 616 026f 6C656E67 		.ascii	"length\000"
+ 616 027d 6C656E67 		.ascii	"length\000"
  616      746800
  617              	.LASF19:
- 618 0276 2E2E2F2E 		.ascii	"../../lib/e-puck2_main-processor/src/crc/crc16.c\000"
+ 618 0284 2E2E2F2E 		.ascii	"../../lib/e-puck2_main-processor/src/crc/crc16.c\000"
  618      2E2F6C69 
  618      622F652D 
  618      7075636B 
  618      325F6D61 
  619              		.ident	"GCC: (GNU Tools for Arm Embedded Processors 7-2017-q4-major) 7.2.1 20170904 (release) [ARM
-ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s 			page 14
+ARM GAS  /var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s 			page 14
 
 
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 crc16.c
-/var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s:18     .text.crc16:0000000000000000 $t
-/var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s:26     .text.crc16:0000000000000000 crc16
-/var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cckkGnOo.s:106    .text.crc16:0000000000000040 $d
+/var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s:18     .text.crc16:0000000000000000 $t
+/var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s:26     .text.crc16:0000000000000000 crc16
+/var/folders/hn/8gr5z_xn56v50rhk4_8cn7z80000gn/T//cc8gwkd2.s:106    .text.crc16:0000000000000040 $d
 
 UNDEFINED SYMBOLS
 __stack_chk_fail
