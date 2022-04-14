@@ -56,7 +56,6 @@ int main(void)
 
     /* Infinite loop. */
     while (1) {
-    	chprintf((BaseSequentialStream *)&SD3, "while \n");
     	//waits 1 second
         chThdSleepMilliseconds(1000);
     }

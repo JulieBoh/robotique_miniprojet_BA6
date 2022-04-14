@@ -31,7 +31,7 @@
     <intAttribute key="org.eclipse.cdt.launch.ATTR_BUILD_BEFORE_LAUNCH_ATTR" value="2"/>
     <stringAttribute key="org.eclipse.cdt.launch.COREFILE_PATH" value=""/>
     <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_REGISTER_GROUPS" value=""/>
-    <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="/Users/juliebohning/Desktop/BA_6/Robotique/TP_ordi.nosync/robotique_miniprojet_BA6/ZikBot/build/ZikBot.elf"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="/Users/juliebohning/Desktop/BA_6/Robotique/TP_ordi.nosync/robotique_miniprojet_BA6/ZikBot/build/ZikBot.elf${active_core_build_dir}"/>
     <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="TP4_CamReg"/>
     <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="false"/>
     <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value=""/>
