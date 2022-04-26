@@ -53,3 +53,6 @@ dkms.conf
 
 #build folder
 build
+
+#.project file
+.project
