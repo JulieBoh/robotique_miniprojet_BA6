@@ -134,6 +134,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 	bool send_to_computer = true;
 
+#define GREEN
     while(1){
     	//waits until an image has been captured
         chBSemWait(&image_ready_sem);
@@ -144,7 +145,27 @@ static THD_FUNCTION(ProcessImage, arg) {
 		for(uint16_t i = 0 ; i < (2 * IMAGE_BUFFER_SIZE) ; i+=2){
 			//extracts first 5bits of the first byte
 			//takes nothing from the second byte
-			image[i/2] = (uint8_t)img_buff_ptr[i]&0xF8;
+			#ifdef RED
+			 // extract red value
+			 // masking of high byte to extract bits 3-7
+				image[i/2] = ((uint8_t)img_buff_ptr[i]&0xF8)>>3;
+			#endif
+			#ifdef BLUE
+			  // extract blue value
+			  // masking of low byte to extract bits 0-4
+				image[i/2] = (uint8_t)img_buff_ptr[i+1] & 0x1F;
+			#endif
+			#ifdef GREEN
+			 // extract green value
+			 // LSBs of high byte
+				uint8_t pix_hi = img_buff_ptr[i];
+				pix_hi = (0b00000111 & pix_hi)<<3;
+				//MSBs of low byte
+				uint8_t pix_lo = img_buff_ptr[i+1];
+				pix_lo = (0b11100000 & pix_lo)>>5;
+				//combine both in image to be sent
+				image[i/2] = pix_hi | pix_lo;
+			#endif
 		}
 
 		//search for a line in the image and gets its width in pixels

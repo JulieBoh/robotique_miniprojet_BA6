@@ -50,6 +50,17 @@ int main(void)
 	//inits the motors
 	motors_init();
 
+	//bodyled on
+	for(int i=0; i<4; i++) {
+		set_body_led(i, 1);
+	}
+
+	/*rgb led on
+	for(int i=0; i<4; i++) {
+		set_led(i, 0);
+		set_rgb_led(i, 255, 0, 255);
+	}*/
+
 	//stars the threads
 	pi_regulator_start();
 	process_image_start();
