@@ -52,7 +52,5 @@ Mkfile.old
 dkms.conf
 
 #build folder
-build
-
-#.project file
-.project
+ZikBot/build/
+ZikBot/.settings/
