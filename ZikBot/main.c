@@ -12,8 +12,9 @@
 #include <camera/po8030.h>
 #include <chprintf.h>
 
-#include <pi_regulator.h>
-#include <process_image.h>
+#include <capture_and_play.h>
+#include <path_regulator.h>
+#include <capture_margin.h>
 
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
 {
@@ -36,34 +37,35 @@ static void serial_start(void)
 
 int main(void)
 {
+	//init hal, ChibiOS & MPU
     halInit();
     chSysInit();
     mpu_init();
 
+    /*debug purposes*/
     //starts the serial communication
     serial_start();
     //start the USB communication
     usb_start();
+
+
     //starts the camera
     dcmi_start();
 	po8030_start();
 	//inits the motors
 	motors_init();
 
-	//bodyled on
-	for(int i=0; i<4; i++) {
-		set_body_led(i, 1);
-	}
+	// setup routine
+	//...
+		//read IR
+		//set tempo
+		//affichage statut
 
-	/*rgb led on
-	for(int i=0; i<4; i++) {
-		set_led(i, 0);
-		set_rgb_led(i, 255, 0, 255);
-	}*/
+	//starts the threads
+	capture_and_play_start();
+	capture_margin_start();
+	path_regulator_start();
 
-	//stars the threads
-	pi_regulator_start();
-	process_image_start();
 
     /* Infinite loop. */
     while (1) {
@@ -72,6 +74,7 @@ int main(void)
     }
 }
 
+// security purposes
 #define STACK_CHK_GUARD 0xe2dee396
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 

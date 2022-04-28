@@ -1,3 +1,4 @@
+#include <capture_margin.h>
 #include "ch.h"
 #include "hal.h"
 #include <math.h>
@@ -7,8 +8,7 @@
 
 #include <main.h>
 #include <motors.h>
-#include <pi_regulator.h>
-#include <process_image.h>
+#include <path_regulator.h>
 
 static THD_WORKING_AREA(waPiRegulator, 256);
 static THD_FUNCTION(PiRegulator, arg) {
