@@ -1,0 +1,4 @@
+#ifndef CAPTURE_AND_PLAY_H
+#define CAPTURE_AND_PLAY_H
+
+#endif /* CAPTURE_AND_PLAY_H */
