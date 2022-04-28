@@ -1,4 +1,3 @@
-#include <capture_margin.h>
 #include "ch.h"
 #include "hal.h"
 #include <math.h>
