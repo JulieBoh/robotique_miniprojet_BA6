@@ -3,6 +3,8 @@
 #include <math.h>
 #include <usbcfg.h>
 #include <chprintf.h>
+#include <leds.h>
+
 
 
 #include <main.h>
@@ -16,14 +18,22 @@ static THD_FUNCTION(Tempo, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
 
+    //systime_t time;
+
     while(1){
+        //LEDS: debug purposes
+    	clear_leds();
+        set_body_led(0);
+        set_led(3,1);
+
+
         /*TO BE DONE*/
         // Read IR
         // Compute tempo
         // send new tempo to motor
 
         //chThdSleepUntilWindowed(time, time + MS2ST(10));
-        chThdSleepUntilWindowed(10, 11);
+        chThdSleep(100);
     }
 }
 

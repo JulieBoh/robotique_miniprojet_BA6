@@ -5,6 +5,8 @@
 
 #include <main.h>
 #include <camera/po8030.h>
+#include <leds.h>
+
 
 #include <process_image.h>
 
@@ -13,11 +15,19 @@
 //semaphore
 static BSEMAPHORE_DECL(image_ready_sem, TRUE);
 
+
+// CAPTURE IMAGE THREAD //
+// The purpose of this thread is to make an acquisition of an image. This image is made by 2 segments: one up and one bottom
 static THD_WORKING_AREA(waCaptureImage, 256);
 static THD_FUNCTION(CaptureImage, arg) {
 
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
+
+	//LEDS: debug purposes
+	clear_leds();
+	set_body_led(0);
+    set_led(1,1);
 
 	//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 10 + 11 (minimum 2 lines because reasons)
 	po8030_advanced_config(FORMAT_RGB565, 0, 10, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
@@ -36,6 +46,9 @@ static THD_FUNCTION(CaptureImage, arg) {
 }
 
 
+// PROCESS IMAGE THREAD //
+// The purpose of this thread is to analyse the image, to deduce a note and a path and to actuate the motor to track the path.
+
 static THD_WORKING_AREA(waProcessImage, 1024);
 static THD_FUNCTION(ProcessImage, arg) {
 
@@ -50,21 +63,29 @@ static THD_FUNCTION(ProcessImage, arg) {
 	while(1){
 		//waits until an image has been captured
 		chBSemWait(&image_ready_sem);
+
+		//LEDS: debug purposes
+		clear_leds();
+		set_front_led(0);
+		set_body_led(1);
+
+
 		//gets the pointer to the array filled with the last image in RGB565    
 		img_buff_ptr = dcmi_get_last_image_ptr();
 
-		//Extracts only the red pixels
-		for(uint16_t i = 0 ; i < (2 * IMAGE_BUFFER_SIZE) ; i+=2){// extract green value
-			// LSBs of high byte
+		
+		// Extract and store image /*COPY PASTE TP TO REUSE*/
+		for(uint16_t i = 0 ; i < (2 * IMAGE_BUFFER_SIZE) ; i+=2){
+			//Extracts only the green pixels
+				// LSBs of high byte
 			uint8_t pix_hi = img_buff_ptr[i];
 			pix_hi = (0b00000111 & pix_hi)<<3;
-			//MSBs of low byte
+				//MSBs of low byte
 			uint8_t pix_lo = img_buff_ptr[i+1];
 			pix_lo = (0b11100000 & pix_lo)>>5;
-			//combine both in image to be sent
+				//combine both in image to be sent
 			image[i/2] = pix_hi | pix_lo;
 		}
-		
 		
 		/* TO BE DONE : to be coded in many functions for the readability of the file*/
 		// analyse bottom image -> store bottom margin position

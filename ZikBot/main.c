@@ -11,10 +11,13 @@
 #include <motors.h>
 #include <camera/po8030.h>
 #include <chprintf.h>
+#include <leds.h>
+
 
 #include <tempo.h>
 #include <process_image.h>
 
+// COMMUNICATION //
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
 {
 	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)"START", 5);
@@ -33,6 +36,8 @@ static void serial_start(void)
 
 	sdStart(&SD3, &ser_cfg); // UART3.
 }
+
+// MAIN //
 
 int main(void)
 {
@@ -72,7 +77,8 @@ int main(void)
     }
 }
 
-// security purposes
+
+// SECURITY purposes //
 #define STACK_CHK_GUARD 0xe2dee396
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 
