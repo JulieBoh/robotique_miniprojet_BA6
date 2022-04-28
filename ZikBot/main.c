@@ -11,9 +11,12 @@
 #include <motors.h>
 #include <camera/po8030.h>
 #include <chprintf.h>
+#include <sensors/proximity.h>
 
 #include <pi_regulator.h>
 #include <process_image.h>
+#include <tempo.h>
+
 
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
 {
@@ -21,6 +24,11 @@ void SendUint8ToComputer(uint8_t* data, uint16_t size)
 	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)&size, sizeof(uint16_t));
 	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)data, size);
 }
+messagebus_t bus;
+
+//bus declaration
+MUTEX_DECL(bus_lock);
+CONDVAR_DECL(bus_condvar);
 
 static void serial_start(void)
 {
@@ -44,31 +52,20 @@ int main(void)
     serial_start();
     //start the USB communication
     usb_start();
-    //starts the camera
-    dcmi_start();
-	po8030_start();
 	//inits the motors
 	motors_init();
 
-	//bodyled on
-	for(int i=0; i<4; i++) {
-		set_body_led(i, 1);
-	}
+	//IR init
+	proximity_start();
+	calibrate_ir();
 
-	/*rgb led on
-	for(int i=0; i<4; i++) {
-		set_led(i, 0);
-		set_rgb_led(i, 255, 0, 255);
-	}*/
-
-	//stars the threads
-	pi_regulator_start();
-	process_image_start();
-
+	static int16_t default_speed = 0;
+	messagebus_topic_t *proximity_topic = messagebus_find_topic(&bus, "/proximity");
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
         chThdSleepMilliseconds(1000);
+        get_tempo(default_speed, proximity_topic);
     }
 }
 
