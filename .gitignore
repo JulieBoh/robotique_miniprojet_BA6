@@ -54,3 +54,7 @@ dkms.conf
 #build folder
 ZikBot/build/
 ZikBot/.settings/
+
+.project
+
+ZikBot/ZikBot.launch
