@@ -17,18 +17,14 @@
 #include <process_image.h>
 #include <tempo.h>
 
-
+/** DEBUG FUNCTIONS **/
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
 {
 	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)"START", 5);
 	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)&size, sizeof(uint16_t));
 	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)data, size);
 }
-messagebus_t bus;
 
-//bus declaration
-MUTEX_DECL(bus_lock);
-CONDVAR_DECL(bus_condvar);
 
 static void serial_start(void)
 {
@@ -41,12 +37,23 @@ static void serial_start(void)
 
 	sdStart(&SD3, &ser_cfg); // UART3.
 }
+/** END OF DEBUG FUCTIONS **/
+
+
+// bus declaration
+messagebus_t bus;
+MUTEX_DECL(bus_lock);
+CONDVAR_DECL(bus_condvar);
+
 
 int main(void)
 {
     halInit();
     chSysInit();
     mpu_init();
+
+    // bus init
+    messagebus_init(&bus, &bus_lock, &bus_condvar);
 
     //starts the serial communication
     serial_start();
@@ -60,11 +67,11 @@ int main(void)
 	calibrate_ir();
 
 	static int16_t default_speed = 0;
-	messagebus_topic_t *proximity_topic = messagebus_find_topic(&bus, "/proximity");
+	messagebus_topic_t *proximity_topic = messagebus_find_topic_blocking(&bus, "/proximity");
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-        chThdSleepMilliseconds(1000);
+        chThdSleepMilliseconds(100);
         get_tempo(default_speed, proximity_topic);
     }
 }
