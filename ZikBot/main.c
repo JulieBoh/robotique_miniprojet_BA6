@@ -7,15 +7,19 @@
 #include "hal.h"
 #include "memory_protection.h"
 #include <usbcfg.h>
+#include <chprintf.h>
 #include <main.h>
 #include <motors.h>
 #include <camera/po8030.h>
-#include <chprintf.h>
 #include <sensors/proximity.h>
+#include <audio/audio_thread.h>
+#include <audio/play_melody.h>
+
 
 #include <pi_regulator.h>
 #include <process_image.h>
 #include <tempo.h>
+#include <sound.h>
 
 /** DEBUG FUNCTIONS **/
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
@@ -66,13 +70,18 @@ int main(void)
 	proximity_start();
 	calibrate_ir();
 
+	//sound init
+	dac_start();
+	playMelodyStart();
+
 	static int16_t default_speed = 0;
 	messagebus_topic_t *proximity_topic = messagebus_find_topic_blocking(&bus, "/proximity");
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
         chThdSleepMilliseconds(100);
-        get_tempo(default_speed, proximity_topic);
+        get_tempo(&default_speed, proximity_topic);
+        sound_test(&default_speed);
     }
 }
 

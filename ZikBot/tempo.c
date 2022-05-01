@@ -8,7 +8,7 @@
 #define PROX_LEFT	 6 //unused
 //#define PROX_NB_USED 4
 
-void get_tempo(int16_t default_speed, messagebus_topic_t *proximity_topic)
+void get_tempo(int16_t* default_speed, messagebus_topic_t *proximity_topic)
 {
 //check IR
 	proximity_msg_t prox_buf;
@@ -18,13 +18,25 @@ void get_tempo(int16_t default_speed, messagebus_topic_t *proximity_topic)
 	{
 		// check each proximity sensor
 		if(prox_buf.delta[r] > 10)
+		{
 			set_led(1,1);
+			*default_speed--;
+		}
 		if(prox_buf.delta[r_bck] > 10)
+		{
 			set_led(3,1);
+			*default_speed--;
+		}
 		if(prox_buf.delta[l_bck] > 10)
+		{
 			set_led(5,1);
+			*default_speed++;
+		}
 		if(prox_buf.delta[l] > 10)
+		{
 			set_led(7,1);
+			*default_speed++;
+		}
 	}
 
 
