@@ -12,18 +12,18 @@ void get_tempo(int16_t default_speed, messagebus_topic_t *proximity_topic)
 {
 //check IR
 	proximity_msg_t prox_buf;
-	enum prox_sensors_used{r = 3, r_bck = 4,l_bck = 5, l = 6,PROX_NB_USED};
+	enum prox_sensors_used{r = 3, r_bck = 4,l_bck = 5, l = 6};
 	//check msgbus
 	if(messagebus_topic_read(proximity_topic, &prox_buf, sizeof(proximity_msg_t)))
 	{
 		// check each proximity sensor
-		if(prox_buf->delta[3] > 10)
+		if(prox_buf.delta[r] > 10)
 			set_led(1,1);
-		if(prox_buf->delta[4] > 10)
+		if(prox_buf.delta[r_bck] > 10)
 			set_led(3,1);
-		if(prox_buf->delta[5] > 10)
+		if(prox_buf.delta[l_bck] > 10)
 			set_led(5,1);
-		if(prox_buf->delta[6] > 10)
+		if(prox_buf.delta[l] > 10)
 			set_led(7,1);
 	}
 
