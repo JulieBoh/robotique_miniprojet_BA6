@@ -11,45 +11,46 @@
 #define PROX_RIGHT	 3 //unused
 #define PROX_LEFT	 6 //unused
 //#define PROX_NB_USED 4
+#define IR_THRESHOLD 250
 
 void get_tempo(int16_t default_speed, messagebus_topic_t *proximity_topic)
 {
 //check IR
 	proximity_msg_t prox_buf;
 	enum prox_sensors_used{r = 2, r_bck, l_bck, l};
-	//check msgbusj
+	//check msgbus
  	if(messagebus_topic_read(proximity_topic, &prox_buf, sizeof(proximity_msg_t)))
 	{
 		// check each proximity sensor
-		if(prox_buf.delta[r] > 50)
+		if(prox_buf.delta[r] > IR_THRESHOLD)
 		{	set_led(LED1,1);
 			//chprintf((BaseSequentialStream *)&SD3, "r > 50\r\n");
 		}
 		else
 		{	set_led(LED1,0);
 		}
-		if(prox_buf.delta[r_bck] > 50)
+		if(prox_buf.delta[r_bck] > IR_THRESHOLD)
 		{	set_led(LED3,1);
 			//chprintf((BaseSequentialStream *)&SD3, "r_bck > 50\r\n");
 		}
 		else
 		{	set_led(LED3,0);
 		}
-/*		if(prox_buf.delta[l_bck] > 50)
-		{	set_led(5,1);
+		if(prox_buf.delta[l_bck] > IR_THRESHOLD)
+		{	set_led(LED5,1);
 			//chprintf((BaseSequentialStream *)&SD3, "l_bck > 50\r\n");
 		}
-/*		else
-		{	set_led(5,0);
+		else
+		{	set_led(LED5,0);
 		}
-		if(prox_buf.delta[l] > 50)
-		{	set_led(7,1);
+		if(prox_buf.delta[l] > IR_THRESHOLD)
+		{	set_led(LED7,1);
 			//chprintf((BaseSequentialStream *)&SD3, "l > 50\r\n");
 		}
-/*		else
-		{set_led(7,0);
+		else
+		{set_led(LED7,0);
 		}
-*/
+
 /*		chprintf((BaseSequentialStream *)&SD3, "ambient \n\r "\
 												"r = %u, r_bck = %u, l_bck = %u, l = %u \n\r", \
 												prox_buf.ambient[r], prox_buf.ambient[r_bck], \
