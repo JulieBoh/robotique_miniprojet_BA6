@@ -74,7 +74,6 @@ int main(void)
     while (1) {
     	//waits 1 second
         chThdSleepMilliseconds(500);
-        //clear_leds();
         get_tempo(default_speed, proximity_topic);
 
     }

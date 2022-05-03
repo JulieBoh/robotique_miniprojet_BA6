@@ -23,48 +23,29 @@ void get_tempo(int16_t default_speed, messagebus_topic_t *proximity_topic)
 	{
 		// check each proximity sensor
 		if(prox_buf.delta[r] > IR_THRESHOLD)
-		{	set_led(LED1,1);
-			//chprintf((BaseSequentialStream *)&SD3, "r > 50\r\n");
+		{
 		}
 		else
-		{	set_led(LED1,0);
+		{
 		}
 		if(prox_buf.delta[r_bck] > IR_THRESHOLD)
-		{	set_led(LED3,1);
-			//chprintf((BaseSequentialStream *)&SD3, "r_bck > 50\r\n");
+		{
 		}
 		else
-		{	set_led(LED3,0);
+		{
 		}
 		if(prox_buf.delta[l_bck] > IR_THRESHOLD)
-		{	set_led(LED5,1);
-			//chprintf((BaseSequentialStream *)&SD3, "l_bck > 50\r\n");
+		{
 		}
 		else
-		{	set_led(LED5,0);
+		{
 		}
 		if(prox_buf.delta[l] > IR_THRESHOLD)
-		{	set_led(LED7,1);
-			//chprintf((BaseSequentialStream *)&SD3, "l > 50\r\n");
+		{
 		}
 		else
-		{set_led(LED7,0);
+		{
 		}
-
-/*		chprintf((BaseSequentialStream *)&SD3, "ambient \n\r "\
-												"r = %u, r_bck = %u, l_bck = %u, l = %u \n\r", \
-												prox_buf.ambient[r], prox_buf.ambient[r_bck], \
-												prox_buf.ambient[l_bck], prox_buf.ambient[l]);
-		chprintf((BaseSequentialStream *)&SD3, "reflected\n\r "\
-												"r = %u, r_bck = %u, l_bck = %u, l = %u \n\r", \
-												prox_buf.reflected[r], prox_buf.reflected[r_bck], \
-												prox_buf.reflected[l_bck], prox_buf.reflected[l]);
-*/
-		chprintf((BaseSequentialStream *)&SD3, "delta \n\r "\
-												"r = %d, r_bck = %d, l_bck = %d, l = %d \n\r", \
-												prox_buf.delta[r], prox_buf.delta[r_bck], \
-												prox_buf.delta[l_bck], prox_buf.delta[l]);
-
 	}
 
 
