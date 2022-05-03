@@ -14,6 +14,7 @@
 #include <sensors/proximity.h>
 #include <audio/audio_thread.h>
 #include <audio/play_melody.h>
+#include <leds.h>
 
 
 #include <pi_regulator.h>
@@ -79,7 +80,7 @@ int main(void)
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-        chThdSleepMilliseconds(100);
+        chThdSleepMilliseconds(500);
         get_tempo(&default_speed, proximity_topic);
         sound_test(&default_speed);
     }
