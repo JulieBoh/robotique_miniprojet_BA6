@@ -11,10 +11,13 @@
 #include <motors.h>
 #include <camera/po8030.h>
 #include <chprintf.h>
+#include <leds.h>
 
-#include <pi_regulator.h>
+
+#include <tempo.h>
 #include <process_image.h>
 
+// COMMUNICATION //
 void SendUint8ToComputer(uint8_t* data, uint16_t size) 
 {
 	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)"START", 5);
@@ -34,36 +37,40 @@ static void serial_start(void)
 	sdStart(&SD3, &ser_cfg); // UART3.
 }
 
+// MAIN //
+
 int main(void)
 {
+	//init hal, ChibiOS & MPU
     halInit();
     chSysInit();
     mpu_init();
 
+    /*debug purposes*/
     //starts the serial communication
     serial_start();
     //start the USB communication
     usb_start();
+
+	//LEDS: light under mirror
+	set_body_led(1);
+
     //starts the camera
     dcmi_start();
 	po8030_start();
 	//inits the motors
 	motors_init();
 
-	//bodyled on
-	for(int i=0; i<4; i++) {
-		set_body_led(i, 1);
-	}
+	/* TO BE DONE -> Setup Routine*/
+		//read IR
+		//set tempo
+		//affichage statut
 
-	/*rgb led on
-	for(int i=0; i<4; i++) {
-		set_led(i, 0);
-		set_rgb_led(i, 255, 0, 255);
-	}*/
-
-	//stars the threads
-	pi_regulator_start();
+	//starts the threads
+	tempo_start();
 	process_image_start();
+
+
 
     /* Infinite loop. */
     while (1) {
@@ -72,6 +79,8 @@ int main(void)
     }
 }
 
+
+// SECURITY purposes //
 #define STACK_CHK_GUARD 0xe2dee396
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 
