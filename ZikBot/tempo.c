@@ -18,28 +18,6 @@
 #define IR_THRESHOLD 250
 
 
-static THD_WORKING_AREA(waTempo, 256);
-static THD_FUNCTION(Tempo, arg) {
-
-    chRegSetThreadName(__FUNCTION__);
-    (void)arg;
-
-    //systime_t time;
-
-    while(1){
-        /*TO BE DONE*/
-        // Read IR
-        // Compute tempo
-        // send new tempo to motor
-
-        //chThdSleepUntilWindowed(time, time + MS2ST(10));
-        chThdSleep(100);
-    }
-}
-
-void tempo_start(void){
-	chThdCreateStatic(waTempo, sizeof(waTempo), NORMALPRIO, Tempo, NULL);
-}
 
 void get_tempo(int16_t* default_speed, messagebus_topic_t *proximity_topic)
 {
@@ -52,28 +30,33 @@ void get_tempo(int16_t* default_speed, messagebus_topic_t *proximity_topic)
 		// check each proximity sensor
 		if(prox_buf.delta[r] > IR_THRESHOLD)
 		{
+			*default_speed = 2;
 		}
-		else
+		/*else
 		{
-		}
+			*default_speed = 1;
+		}*/
 		if(prox_buf.delta[r_bck] > IR_THRESHOLD)
 		{
+			*default_speed = 2;
 		}
-		else
+		/*else
 		{
-		}
+		}*/
 		if(prox_buf.delta[l_bck] > IR_THRESHOLD)
 		{
+			*default_speed = 1;
 		}
-		else
+		/*else
 		{
-		}
+		}*/
 		if(prox_buf.delta[l] > IR_THRESHOLD)
 		{
+			*default_speed = 1;
 		}
-		else
+		/*else
 		{
-		}
+		}*/
 	}
 
 

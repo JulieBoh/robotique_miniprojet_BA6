@@ -88,13 +88,13 @@ int main(void)
 	static int16_t default_speed = 0;
 	messagebus_topic_t *proximity_topic = messagebus_find_topic_blocking(&bus, "/proximity");
 	//starts the threads
-	tempo_start();
+	sound_start();
 	process_image_start();
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
         chThdSleepMilliseconds(500);
-        get_tempo(&default_speed, proximity_topic);
+        //get_tempo(&default_speed, proximity_topic);
         sound_test(&default_speed);
     }
 }
