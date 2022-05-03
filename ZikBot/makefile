@@ -12,7 +12,6 @@ GLOBAL_PATH = ../../lib/e-puck2_main-processor
 CSRC += ./main.c \
 		./tempo.c \
 		./process_image.c \
-		./tempo.c \
 		./sound.c \
 
 #Header folders to include

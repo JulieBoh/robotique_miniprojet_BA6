@@ -1,16 +1,22 @@
 #include "ch.h"
 #include "hal.h"
-#include <math.h>
-#include <usbcfg.h>
+#include <stdint.h>
 #include <chprintf.h>
 #include <leds.h>
+#include <msgbus/messagebus.h>
+#include <sensors/proximity.h>
 
-
+#include <tempo.h>
 
 #include <main.h>
 #include <motors.h>
-#include <tempo.h>
 #include <process_image.h>
+
+#define PROX_RIGHT	 3 //unused
+#define PROX_LEFT	 6 //unused
+//#define PROX_NB_USED 4
+#define IR_THRESHOLD 250
+
 
 static THD_WORKING_AREA(waTempo, 256);
 static THD_FUNCTION(Tempo, arg) {
@@ -34,21 +40,6 @@ static THD_FUNCTION(Tempo, arg) {
 void tempo_start(void){
 	chThdCreateStatic(waTempo, sizeof(waTempo), NORMALPRIO, Tempo, NULL);
 }
-
-#include <ch.h>
-#include <hal.h>
-#include <chprintf.h>
-#include <tempo.h>
-#include <stdint.h>
-#include <chprintf.h>
-#include <msgbus/messagebus.h>
-#include <sensors/proximity.h>
-#include <leds.h>
-
-#define PROX_RIGHT	 3 //unused
-#define PROX_LEFT	 6 //unused
-//#define PROX_NB_USED 4
-#define IR_THRESHOLD 250
 
 void get_tempo(int16_t* default_speed, messagebus_topic_t *proximity_topic)
 {
