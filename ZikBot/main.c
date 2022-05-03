@@ -12,6 +12,8 @@
 #include <camera/po8030.h>
 #include <chprintf.h>
 #include <sensors/proximity.h>
+#include <leds.h>
+
 
 #include <pi_regulator.h>
 #include <process_image.h>
@@ -72,6 +74,7 @@ int main(void)
     while (1) {
     	//waits 1 second
         chThdSleepMilliseconds(500);
+        //clear_leds();
         get_tempo(default_speed, proximity_topic);
 
     }
