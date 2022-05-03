@@ -52,6 +52,8 @@ int main(void)
     //start the USB communication
     usb_start();
 
+	//LEDS: light under mirror
+	set_body_led(1);
 
     //starts the camera
     dcmi_start();

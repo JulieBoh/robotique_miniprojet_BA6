@@ -21,12 +21,6 @@ static THD_FUNCTION(Tempo, arg) {
     //systime_t time;
 
     while(1){
-        //LEDS: debug purposes
-    	clear_leds();
-        set_body_led(0);
-        set_led(3,1);
-
-
         /*TO BE DONE*/
         // Read IR
         // Compute tempo
