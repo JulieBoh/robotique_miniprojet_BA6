@@ -14,6 +14,8 @@
 #define NOISE_RATIO 0.13
 #define MAX_LINE_NBR 3 // MAX_LINE_NBR - 2 (margins) = nbr of notes permitted at the same time music arrangement (here no arrangement permitted)
 #define MIN_LINE_WIDTH 10
+#define DETECTION_MARGIN 5
+#define LINES_POS_HISTORY_SIZE 10
 
 //static
 
@@ -99,11 +101,12 @@ static THD_FUNCTION(ProcessImage, arg) {
 		// Send to computer (debug purposes)
 		if(send_to_computer){
 			//sends to the computer the image
-			for(int i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
+			/*for(int i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
 				image[i] = 0;
-			}
+			}*/
 			for(uint8_t i = 0; i<MAX_LINE_NBR; i++){
-				image[bottom_pos[i]] = 1;
+				if(bottom_pos[i] !=0)
+					image[bottom_pos[i]] = 100;
 			}
 			SendUint8ToComputer(image, IMAGE_BUFFER_SIZE);
 		}
@@ -128,7 +131,10 @@ uint16_t * bottom_image_analyse(uint8_t image[]){
 	uint16_t begin[MAX_LINE_NBR] = {0};
 	uint16_t end[MAX_LINE_NBR] = {0};
 	static uint16_t lines_position[MAX_LINE_NBR] = {0};
-	uint16_t i = 0, j = 0;
+	static uint16_t lines_pos_mean[MAX_LINE_NBR] = {0};
+	static uint16_t lines_pos_history[LINES_POS_HISTORY_SIZE][MAX_LINE_NBR] = {0};
+	static uint16_t lines_pos_his_mean[MAX_LINE_NBR] = {0};
+	uint16_t i = 0, width_line = 0;
 	uint32_t mean = 0;
 			
 	//performs an average to now the noise threashold
@@ -140,16 +146,15 @@ uint16_t * bottom_image_analyse(uint8_t image[]){
 	
 	//analyse buffer with slope detection
 	i=0;
-
 	while(i < IMAGE_BUFFER_SIZE-1){
 		//the slope must at least be MIN_LINE_WIDTH wide and is compared
 		//to the last image value
-		
+
 		//if below the threshold
-		if(image[i+1] < (comparison_value - noise)){
-	        j++;
-			if(j == MIN_LINE_WIDTH - 1){ //when the margin reach the desired width
-				begin[line_nbr] = i - (j - 2);
+		if(image[i+1] < (comparison_value - noise) && i>DETECTION_MARGIN && i<IMAGE_BUFFER_SIZE-DETECTION_MARGIN){
+	        width_line++;
+			if(width_line == MIN_LINE_WIDTH - 1){ //when the margin reach the desired width
+				begin[line_nbr] = i - (width_line - 2);
 				in_line = true;
 			}
 		}
@@ -162,28 +167,70 @@ uint16_t * bottom_image_analyse(uint8_t image[]){
 				}
 				in_line = false;
 			}
-			j = 0;
+			width_line = 0;
 			comparison_value = image[i+1];
 		}
 		i++;
 	}
 
 	//RETURN: table with all positions (margin + notes)
-	if(line_nbr == 3){
+	if(line_nbr == 3 || line_nbr == 2){ //margins + note
+		//Margins detected position
 	    lines_position[0] = (end[0]+begin[0])/2;
-		lines_position[1] = (end[1]+begin[1])/2;
-		lines_position[2] = (end[2]+begin[2])/2;
-	}
-	else if(line_nbr == 2){
-	    //margins
-		lines_position[0] = (end[0]+begin[0])/2;
-		lines_position[1] = 0;
-		lines_position[2] = (end[1]+begin[1])/2;
+		lines_position[2] = (end[line_nbr-1]+begin[line_nbr-1])/2;
+
+		//Note detected position
+		if(line_nbr == 3)
+			lines_position[1] = (end[1]+begin[1])/2;
+		else
+			lines_position[1] = 0;
+
+		//History and mean update (mean is calculated for note even if it is not necessary)
+		for(uint8_t l = 0; l<MAX_LINE_NBR; l++){
+			//shift history
+			for(uint8_t k = 1; k<LINES_POS_HISTORY_SIZE; k++){
+				lines_pos_history[k][l] = lines_pos_history[k-1][l];
+			}
+			//the actual position is stored into the first position of history
+			lines_pos_history[0][l] = lines_position[l];
+		}
+
+		//Outlier detection and substitution: not used if we are in the first image acquisition
+			//outlier detection margin left
+		if(/*(lines_position[0]==0) || */
+			(lines_position[0] > lines_pos_history[1][0]+MIN_LINE_WIDTH) || (lines_position[0] < lines_pos_history[1][0]-MIN_LINE_WIDTH) ||
+			(lines_position[0] > lines_pos_history[2][0]+MIN_LINE_WIDTH) || (lines_position[0] < lines_pos_history[2][0]-MIN_LINE_WIDTH) ||
+			(lines_position[0] > lines_pos_history[3][0]+MIN_LINE_WIDTH) || (lines_position[0] < lines_pos_history[3][0]-MIN_LINE_WIDTH) ||
+			(lines_position[0] > lines_pos_history[4][0]+MIN_LINE_WIDTH) || (lines_position[0] < lines_pos_history[4][0]-MIN_LINE_WIDTH)){
+				lines_position[0] = lines_pos_history[1][0];
+				lines_position[2] = 400;
+			}
+			//outlier detection margin right
+		if(/*(lines_position[2]==0) ||*/
+			(lines_position[2] > lines_pos_history[1][2]+MIN_LINE_WIDTH) || (lines_position[2] < lines_pos_history[1][2]-MIN_LINE_WIDTH) ||
+			(lines_position[2] > lines_pos_history[2][2]+MIN_LINE_WIDTH) || (lines_position[2] < lines_pos_history[2][2]-MIN_LINE_WIDTH) ||
+			(lines_position[2] > lines_pos_history[3][2]+MIN_LINE_WIDTH) || (lines_position[2] < lines_pos_history[3][2]-MIN_LINE_WIDTH) ||
+			(lines_position[2] > lines_pos_history[4][2]+MIN_LINE_WIDTH) || (lines_position[2] < lines_pos_history[4][2]-MIN_LINE_WIDTH)){
+				//lines_position[2] = lines_pos_history[1][2];
+			}
+			//outlier detection note -> is it the same than the 2 previous
+		if(/*(lines_position[1]==0) ||*/
+			(lines_position[1] > lines_pos_history[1][1]+MIN_LINE_WIDTH) || (lines_position[1] < lines_pos_history[1][1]-MIN_LINE_WIDTH) ||
+			(lines_position[1] > lines_pos_history[2][1]+MIN_LINE_WIDTH) || (lines_position[1] < lines_pos_history[2][1]-MIN_LINE_WIDTH) ||
+			(lines_position[1] > lines_pos_history[3][1]+MIN_LINE_WIDTH) || (lines_position[1] < lines_pos_history[3][1]-MIN_LINE_WIDTH) ||
+			(lines_position[1] > lines_pos_history[4][1]+MIN_LINE_WIDTH) || (lines_position[1] < lines_pos_history[4][1]-MIN_LINE_WIDTH)){
+				lines_position[1] = lines_pos_history[1][1];
+			}
+		
 	}
 	//Error: if more than MAX_LINE_NBR is detected, nothing is played, and the 2 border-lines are taken as margins.
 	// Also if no notes are detected
 	else{
 		//error
+		//TO DO on vie sur l'historique un moment puis on coupe les moteurs et on lance le protocole de fin
+		lines_position[0] = lines_pos_history[1][0];
+		lines_position[1] = lines_pos_history[1][1];
+		lines_position[2] = lines_pos_history[1][2];
 	}
 
 	return lines_position;
