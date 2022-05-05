@@ -30,33 +30,20 @@ void get_tempo(int16_t* default_speed, messagebus_topic_t *proximity_topic)
 		// check each proximity sensor
 		if(prox_buf.delta[r] > IR_THRESHOLD)
 		{
-			*default_speed = 2;
+			*default_speed = 0;
 		}
-		/*else
-		{
-			*default_speed = 1;
-		}*/
 		if(prox_buf.delta[r_bck] > IR_THRESHOLD)
 		{
-			*default_speed = 2;
+			(*default_speed)++;
 		}
-		/*else
-		{
-		}*/
 		if(prox_buf.delta[l_bck] > IR_THRESHOLD)
 		{
-			*default_speed = 1;
+			(*default_speed)--;
 		}
-		/*else
-		{
-		}*/
 		if(prox_buf.delta[l] > IR_THRESHOLD)
 		{
-			*default_speed = 1;
+			*default_speed = 0;
 		}
-		/*else
-		{
-		}*/
 	}
 
 
