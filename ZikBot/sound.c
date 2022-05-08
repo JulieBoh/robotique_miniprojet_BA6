@@ -6,6 +6,8 @@
 #include <motors.h>
 #include <sensors/proximity.h>
 
+//debug purposes
+#include <chprintf.h>
 
 #include "sound.h"
 #include "tempo.h"
@@ -33,28 +35,20 @@ static THD_FUNCTION(Sound, arg) {
     	const uint16_t note[MELODY_LENGTH] = {get_note(proximity_topic)};
         const float note_tempo[MELODY_LENGTH] = {NOTE_TEMPO};
 
-    	if(note[0] != 0)
-    	{
-    		melody_t melody = {note, note_tempo, MELODY_LENGTH};
-    		playMelody(EXTERNAL_SONG, ML_FORCE_CHANGE, &melody);
+   		melody_t melody = {note, note_tempo, MELODY_LENGTH};
+   		playMelody(EXTERNAL_SONG, ML_FORCE_CHANGE, &melody);
 
-    		/*get_tempo(&default_speed, proximity_topic);
-    		running = 1;
-    		if(running)
-    		{
-    			if(default_speed > 14)
-    				default_speed = 14;
-    			if(default_speed < -14)
-    				default_speed = -14;
-    			left_motor_set_speed(CM_TO_STEPS(default_speed));
-    			right_motor_set_speed(CM_TO_STEPS(default_speed));
-    		}*/
-    	}
-    	else
-    	{
-    		stopCurrentMelody();
-    	}
-        chThdSleepMilliseconds(100);
+   		/*get_tempo(&default_speed, proximity_topic);
+   		running = 1;
+   		if(running)
+   		{
+   			if(default_speed > 14)
+   				default_speed = 14;
+   			if(default_speed < -14)
+   				default_speed = -14;
+   			left_motor_set_speed(CM_TO_STEPS(default_speed));
+   			right_motor_set_speed(CM_TO_STEPS(default_speed));
+   		}*/
 
     }
 }
@@ -63,17 +57,17 @@ void sound_start(void){
 	chThdCreateStatic(waSound, sizeof(waSound), NORMALPRIO, Sound, NULL);
 }
 
-void sound_test(int16_t* default_speed)
-{
-	if(*default_speed % 2 == 0)
-	{
-		playMelody(MARIO_DEATH, ML_WAIT_AND_CHANGE, NULL);
-	}
-	else
-	{
-		playMelody(STARWARS, ML_WAIT_AND_CHANGE, NULL);
-	}
-}
+//void sound_test(int16_t* default_speed)
+//{
+//	if(*default_speed % 2 == 0)
+//	{
+//		playMelody(MARIO_DEATH, ML_WAIT_AND_CHANGE, NULL);
+//	}
+//	else
+//	{
+//		playMelody(STARWARS, ML_WAIT_AND_CHANGE, NULL);
+//	}
+//}
 
 #define SCALE_SIZE 8
 static const uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C3, NOTE_D3, NOTE_E3, NOTE_F3, NOTE_G3, NOTE_A3, NOTE_B3, NOTE_C4};
@@ -88,10 +82,11 @@ static uint16_t get_note(messagebus_topic_t *proximity_topic)
 		{
 			if(prox_buf.delta[i] > 250)
 			{
+				//chprintf((BaseSequentialStream *)&SD3, "trigger on sensor %u\r\n", i);
 				return c_major_scale[i];
-
 			}
 		}
 	}
+	chprintf((BaseSequentialStream *)&SD3, "no trigger\r\n");
 	return 0;
 }
