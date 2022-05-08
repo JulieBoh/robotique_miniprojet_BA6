@@ -46,10 +46,4 @@ void get_tempo(int16_t* default_speed, messagebus_topic_t *proximity_topic)
 		}
 	}
 
-
-
-//compute tempo -> 4 different values
-//define acquisition rythm
-//define motor speed
-
 }

@@ -92,7 +92,7 @@ int main(void)
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-        chThdSleepMilliseconds(500);
+        chThdSleepMilliseconds(200);
     }
 }
 

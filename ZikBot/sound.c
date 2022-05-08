@@ -10,10 +10,11 @@
 #include "sound.h"
 #include "tempo.h"
 
-#define CM_TO_STEPS(cm) (1000*(cm)/13) //converts distances for e-puck2 motors
-#define DURATION 150 //ms
+#define CM_TO_STEPS(cm) (1000*(cm)/13) //converts distances for e-puck2 motors]
+#define MELODY_LENGTH 1
+#define NOTE_TEMPO 2 //s^(-1)
 
-static void update_melody(messagebus_topic_t *proximity_topic, uint16_t* note);
+static uint16_t get_note(messagebus_topic_t *proximity_topic);
 
 static THD_WORKING_AREA(waSound, 256);
 static THD_FUNCTION(Sound, arg) {
@@ -21,9 +22,7 @@ static THD_FUNCTION(Sound, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
 
-    uint16_t note = NOTE_C1;
-    uint16_t duration = DURATION;
- //   melody_t melody = {&note, &duration, 1};
+   // uint16_t mel_length = MELODY_LENGTH;
 
     int16_t default_speed = 0;
 	messagebus_topic_t *proximity_topic = messagebus_find_topic_blocking(&bus, "/proximity");
@@ -31,21 +30,32 @@ static THD_FUNCTION(Sound, arg) {
 
     while(1)
     {
-        get_tempo(&default_speed, proximity_topic);
-        update_melody(proximity_topic, &note);
-        running = 1;
-        if(running)
-        {
-        	if(default_speed > 14)
-        		default_speed = 14;
-        	if(default_speed < -14)
-        		default_speed = -14;
-        	left_motor_set_speed(CM_TO_STEPS(default_speed));
-        	right_motor_set_speed(CM_TO_STEPS(default_speed));
-        }
+    	const uint16_t note[MELODY_LENGTH] = {get_note(proximity_topic)};
+        const float note_tempo[MELODY_LENGTH] = {NOTE_TEMPO};
 
+    	if(note[0] != 0)
+    	{
+    		melody_t melody = {note, note_tempo, MELODY_LENGTH};
+    		playMelody(EXTERNAL_SONG, ML_FORCE_CHANGE, &melody);
 
-        playNote(note, duration); //!\\ blocks the thread
+    		/*get_tempo(&default_speed, proximity_topic);
+    		running = 1;
+    		if(running)
+    		{
+    			if(default_speed > 14)
+    				default_speed = 14;
+    			if(default_speed < -14)
+    				default_speed = -14;
+    			left_motor_set_speed(CM_TO_STEPS(default_speed));
+    			right_motor_set_speed(CM_TO_STEPS(default_speed));
+    		}*/
+    	}
+    	else
+    	{
+    		stopCurrentMelody();
+    	}
+        chThdSleepMilliseconds(100);
+
     }
 }
 
@@ -64,10 +74,12 @@ void sound_test(int16_t* default_speed)
 		playMelody(STARWARS, ML_WAIT_AND_CHANGE, NULL);
 	}
 }
+
 #define SCALE_SIZE 8
-static void update_melody(messagebus_topic_t *proximity_topic, uint16_t* note)
+static const uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C3, NOTE_D3, NOTE_E3, NOTE_F3, NOTE_G3, NOTE_A3, NOTE_B3, NOTE_C4};
+
+static uint16_t get_note(messagebus_topic_t *proximity_topic)
 {
-	uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C3, NOTE_D3, NOTE_E3, NOTE_F3, NOTE_G3, NOTE_A3, NOTE_B3, NOTE_C4};
 	proximity_msg_t prox_buf;
 
 	if(messagebus_topic_read(proximity_topic, &prox_buf, sizeof(proximity_msg_t)))
@@ -76,9 +88,10 @@ static void update_melody(messagebus_topic_t *proximity_topic, uint16_t* note)
 		{
 			if(prox_buf.delta[i] > 250)
 			{
-				*note = c_major_scale[i];
-				i = SCALE_SIZE;
+				return c_major_scale[i];
+
 			}
 		}
 	}
+	return 0;
 }
