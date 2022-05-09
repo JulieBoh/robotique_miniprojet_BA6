@@ -14,7 +14,7 @@
 
 #define CM_TO_STEPS(cm) (1000*(cm)/13) //converts distances for e-puck2 motors]
 #define MELODY_LENGTH 1
-#define NOTE_TEMPO 2 //s^(-1)
+#define NOTE_TEMPO 8 //s^(-1)
 
 static uint16_t get_note(messagebus_topic_t *proximity_topic);
 
@@ -36,7 +36,7 @@ static THD_FUNCTION(Sound, arg) {
         const float note_tempo[MELODY_LENGTH] = {NOTE_TEMPO};
 
    		melody_t melody = {note, note_tempo, MELODY_LENGTH};
-   		playMelody(EXTERNAL_SONG, ML_FORCE_CHANGE, &melody);
+   		playMelody(EXTERNAL_SONG, ML_WAIT_AND_CHANGE, &melody);
 
    		/*get_tempo(&default_speed, proximity_topic);
    		running = 1;
@@ -87,6 +87,6 @@ static uint16_t get_note(messagebus_topic_t *proximity_topic)
 			}
 		}
 	}
-	chprintf((BaseSequentialStream *)&SD3, "no trigger\r\n");
+	//chprintf((BaseSequentialStream *)&SD3, "no trigger \r\n");
 	return 0;
 }
