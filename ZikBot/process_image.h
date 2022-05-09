@@ -5,7 +5,7 @@
 
 void process_image_start(void);
 
-uint16_t * bottom_image_analyse(uint8_t* image);
+uint16_t * image_analyse(const uint8_t* image, bool is_reading_bottom);
 void outlier_detection(uint16_t* lines_position, uint16_t (*lines_pos_history)[MAX_LINE_NBR], uint8_t line_nbr);
 
 
