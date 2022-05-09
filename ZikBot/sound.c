@@ -15,6 +15,7 @@
 #define CM_TO_STEPS(cm) (1000*(cm)/13) //converts distances for e-puck2 motors]
 #define MELODY_LENGTH 1
 #define NOTE_TEMPO 8 //s^(-1)
+#define NOTE_DURATION 125	//ms
 
 static uint16_t get_note(messagebus_topic_t *proximity_topic);
 
@@ -24,21 +25,22 @@ static THD_FUNCTION(Sound, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
 
-   // uint16_t mel_length = MELODY_LENGTH;
-
     int16_t default_speed = 0;
 	messagebus_topic_t *proximity_topic = messagebus_find_topic_blocking(&bus, "/proximity");
 	static uint8_t running = 0;
 
     while(1)
     {
-    	const uint16_t note[MELODY_LENGTH] = {get_note(proximity_topic)};
+/*    	WORKING BUT NOTES ARE CUT
+ 	 	const uint16_t note[MELODY_LENGTH] = {get_note(proximity_topic)};
         const float note_tempo[MELODY_LENGTH] = {NOTE_TEMPO};
 
    		melody_t melody = {note, note_tempo, MELODY_LENGTH};
    		playMelody(EXTERNAL_SONG, ML_WAIT_AND_CHANGE, &melody);
-
-   		/*get_tempo(&default_speed, proximity_topic);
+*/
+    	playNote(get_note(proximity_topic), NOTE_DURATION);
+/*		WORKING : CHANGES STANDARD SPEED OF THE ROBOT
+   		get_tempo(&default_speed, proximity_topic);
    		running = 1;
    		if(running)
    		{
@@ -48,7 +50,8 @@ static THD_FUNCTION(Sound, arg) {
    				default_speed = -14;
    			left_motor_set_speed(CM_TO_STEPS(default_speed));
    			right_motor_set_speed(CM_TO_STEPS(default_speed));
-   		}*/
+   		}
+*/
 
     }
 }
