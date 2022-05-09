@@ -16,8 +16,8 @@
 #include <audio/play_melody.h>
 #include <leds.h>
 
-//#include <pi_regulator.h>
-//#include <process_image.h>
+#include <pi_regulator.h>
+#include <process_image.h>
 #include <tempo.h>
 #include <sound.h>
 
@@ -71,8 +71,8 @@ int main(void)
 	set_body_led(1);
 
     //starts the camera
-//    dcmi_start();
-//	po8030_start();
+    dcmi_start();
+	po8030_start();
 	//inits the motors
 	motors_init();
 
@@ -85,9 +85,7 @@ int main(void)
 	playMelodyStart();
 	//starts the threads
 	sound_start();
-//	process_image_start();
-
-	//static int16_t default_speed = 0;
+	process_image_start();
 
     /* Infinite loop. */
     while (1) {

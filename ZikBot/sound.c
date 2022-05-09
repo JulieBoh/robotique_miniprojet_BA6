@@ -12,7 +12,7 @@
 #include "sound.h"
 #include "tempo.h"
 
-#define CM_TO_STEPS(cm) (1000*(cm)/13) //converts distances for e-puck2 motors]
+#define CM_TO_STEPS(cm) (1000*(cm)/13) //converts distances for e-puck2 motors
 #define MELODY_LENGTH 1
 #define NOTE_TEMPO 8 //s^(-1)
 #define NOTE_DURATION 125	//ms
@@ -31,15 +31,8 @@ static THD_FUNCTION(Sound, arg) {
 
     while(1)
     {
-/*    	WORKING BUT NOTES ARE CUT
- 	 	const uint16_t note[MELODY_LENGTH] = {get_note(proximity_topic)};
-        const float note_tempo[MELODY_LENGTH] = {NOTE_TEMPO};
-
-   		melody_t melody = {note, note_tempo, MELODY_LENGTH};
-   		playMelody(EXTERNAL_SONG, ML_WAIT_AND_CHANGE, &melody);
-*/
     	playNote(get_note(proximity_topic), NOTE_DURATION);
-/*		WORKING : CHANGES STANDARD SPEED OF THE ROBOT
+//		WORKING : CHANGES STANDARD SPEED OF THE ROBOT
    		get_tempo(&default_speed, proximity_topic);
    		running = 1;
    		if(running)
@@ -51,7 +44,6 @@ static THD_FUNCTION(Sound, arg) {
    			left_motor_set_speed(CM_TO_STEPS(default_speed));
    			right_motor_set_speed(CM_TO_STEPS(default_speed));
    		}
-*/
 
     }
 }
@@ -85,11 +77,9 @@ static uint16_t get_note(messagebus_topic_t *proximity_topic)
 		{
 			if(prox_buf.delta[i] > 250)
 			{
-				//chprintf((BaseSequentialStream *)&SD3, "trigger on sensor %u\r\n", i);
 				return c_major_scale[i];
 			}
 		}
 	}
-	//chprintf((BaseSequentialStream *)&SD3, "no trigger \r\n");
 	return 0;
 }
