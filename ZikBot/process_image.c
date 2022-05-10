@@ -11,7 +11,7 @@
 #include <process_image.h>
 
 //DEFINE
-#define NOISE_RATIO 0.15
+#define NOISE_RATIO 0.25
 #define MIN_LINE_WIDTH 10
 #define LINES_POS_HISTORY_SIZE 10
 #define SLOPE_WIDTH 5
@@ -37,16 +37,13 @@ static THD_FUNCTION(CaptureImageBottom, arg) {
     (void)arg;
 
 	//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 0 + 1 (minimum 2 lines because reasons)
-	po8030_advanced_config(FORMAT_RGB565, 0, 10, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
 	dcmi_enable_double_buffering();
 	dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
-	dcmi_prepare();
+
 
     while(1){
 		//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 0 + 1 (minimum 2 lines because reasons)
 		po8030_advanced_config(FORMAT_RGB565, 0, 10, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
-		dcmi_enable_double_buffering();
-		dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
 		dcmi_prepare();
 
         //starts a capture
@@ -54,7 +51,6 @@ static THD_FUNCTION(CaptureImageBottom, arg) {
 		//waits for the capture to be done
 		wait_image_ready();
 
-		//TO DO: peut on le remplacer par image_buffer = dcmi_get_last_image_ptr();
 		uint8_t * last_image_ptr = dcmi_get_last_image_ptr();
 		for(uint16_t i=0; i<IMAGE_BUFFER_SIZE*2; i++){
 			image_buffer[i] = last_image_ptr[i];
@@ -62,8 +58,6 @@ static THD_FUNCTION(CaptureImageBottom, arg) {
 
 		//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 0 + 1 (minimum 2 lines because reasons)
 		po8030_advanced_config(FORMAT_RGB565, 0, 300, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
-		dcmi_enable_double_buffering();
-		dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
 		dcmi_prepare();
 		
 		//starts a capture
@@ -140,7 +134,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 			
 		
 		// Send to computer (debug purposes)
-		/*if(send_to_computer){
+		if(send_to_computer){
 			//sends to the computer the image
 			for(int i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
 				image_resultat[i] = 0;
@@ -154,7 +148,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 			SendUint8ToComputer(image_resultat, IMAGE_BUFFER_SIZE);
 		}
 		//invert the bool
-		send_to_computer = !send_to_computer;*/
+		send_to_computer = !send_to_computer;
 		
 	}
 }
@@ -221,11 +215,11 @@ uint16_t * image_analyse(const uint8_t* image, bool is_reading_bottom){
 		outlier_detection(begin, begin_bottom_history, line_nbr);
 		outlier_detection(end, end_bottom_history, line_nbr);
 		
-		lines_bottom_position[0] = end[0];//(end[0]+begin[0])/2;
-		lines_bottom_position[2] = end[2];//(end[line_nbr-1]+begin[line_nbr-1])/2;
+		lines_bottom_position[0] = (end[0]+begin[0])/2;
+		lines_bottom_position[2] = (end[line_nbr-1]+begin[line_nbr-1])/2;
 		//Note detected position
 		if(line_nbr == 3){
-			lines_bottom_position[1] = end[1];//(end[1]+begin[1])/2;
+			lines_bottom_position[1] = (end[1]+begin[1])/2;
 		}
 		else{
 			lines_bottom_position[1] = 0;
@@ -237,9 +231,9 @@ uint16_t * image_analyse(const uint8_t* image, bool is_reading_bottom){
 		outlier_detection(begin, begin_top_history, line_nbr);
 		outlier_detection(end, end_top_history, line_nbr);
 
-		lines_top_position[0] = end[0];//(end[0]+begin[0])/2;
+		lines_top_position[0] = (end[0]+begin[0])/2;
 		lines_top_position[1] = 0;
-		lines_top_position[2] = end[2];//(end[line_nbr-1]+begin[line_nbr-1])/2;
+		lines_top_position[2] = (end[line_nbr-1]+begin[line_nbr-1])/2;
 
 		return lines_top_position;
 	}
@@ -343,8 +337,8 @@ void sendnote2buzzer(uint16_t *bottom_pos){
 }
 
 void path_processing(image_bottom, image_top){
-	left_motor_set_speed(800);
-	right_motor_set_speed(800);
+	left_motor_set_speed(200);
+	right_motor_set_speed(200);
 }
 
 
