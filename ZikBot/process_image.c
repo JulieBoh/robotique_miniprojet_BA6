@@ -6,7 +6,7 @@
 #include <main.h>
 #include <camera/po8030.h>
 #include <leds.h>
-
+#include <math.h>
 
 #include <process_image.h>
 
@@ -15,6 +15,7 @@
 #define MIN_LINE_WIDTH 10
 #define LINES_POS_HISTORY_SIZE 10
 #define SLOPE_WIDTH 5
+#define TOP2BOTTOM_LINES_GAP 300
 
 //global
 uint8_t image_buffer[IMAGE_BUFFER_SIZE*4];
@@ -43,7 +44,7 @@ static THD_FUNCTION(CaptureImageBottom, arg) {
 
     while(1){
 		//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 0 + 1 (minimum 2 lines because reasons)
-		po8030_advanced_config(FORMAT_RGB565, 0, 10, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
+		po8030_advanced_config(FORMAT_RGB565, 0, 0, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
 		dcmi_prepare();
 
         //starts a capture
@@ -57,7 +58,7 @@ static THD_FUNCTION(CaptureImageBottom, arg) {
 		}
 
 		//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 0 + 1 (minimum 2 lines because reasons)
-		po8030_advanced_config(FORMAT_RGB565, 0, 300, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
+		po8030_advanced_config(FORMAT_RGB565, 0, TOP2BOTTOM_LINES_GAP, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
 		dcmi_prepare();
 		
 		//starts a capture
@@ -336,9 +337,23 @@ void sendnote2buzzer(uint16_t *bottom_pos){
 	//envoie note + temps
 }
 
-void path_processing(image_bottom, image_top){
-	left_motor_set_speed(200);
-	right_motor_set_speed(200);
-}
+int16_t path_processing(image_bottom, image_top){ //DEBUG fonction en void normalement
+	//left_motor_set_speed(200);
+	//right_motor_set_speed(200);
 
+	//définir x et angle du robot(y=0)
+	int16_t robot_angle = asin(((image_bottom[0]+image_bottom[2])/2. - (image_top[0]+image_top[2])/2.) / TOP2BOTTOM_LINES_GAP)*180/PI;//TODO: LIT for arcsin //[deg] -> int is ok
+	return robot_angle;
+	/*
+	int16_t x = sin(float(robot_angle*PI/180))*(TOP2MOTOR_DISTANCE - ((image_bottom[0]+image_bottom[2])/2.)/tan(float(robot_angle*PI/180));
+	//error angle process
+	int16_t yg = sqrt((Ks*speed)^2-(x^2)); //xg=0
+	if(yg!=0)
+		int16_t error_angle = 180 - (90-robot_angle) - atan(yg/x)*180/PI;//TODO: LIT for arctan
+	else
+		//error
+	*/
+	//left_motor_set_speed(800);
+	//right_motor_set_speed(800);
+}
 
