@@ -14,18 +14,17 @@
 #define NOISE_RATIO 0.15
 #define MIN_LINE_WIDTH 10
 #define LINES_POS_HISTORY_SIZE 10
-#define SLOPE_WIDTH 5
+#define SLOPE_WIDTH 5 
+#define TOP2BOTTOM_LINES_GAP 300 //[px]
+#define TOP2MOTOR_DISTANCE 900 //[px] TO DO + exacte
+
 
 //global
 uint8_t image_buffer[IMAGE_BUFFER_SIZE*4];
 uint8_t note_rel_pos; //[%]
 
 //semaphore
-static BSEMAPHORE_DECL(image_bottom_captured_sem, TRUE);
-static BSEMAPHORE_DECL(image_top_captured_sem, TRUE);
-
-static BSEMAPHORE_DECL(image_bottom_capture_sem, TRUE);
-static BSEMAPHORE_DECL(image_top_capture_sem, TRUE);
+static BSEMAPHORE_DECL(image_captured_sem, TRUE);
 
 
 // CAPTURE IMAGE BOTTOM THREAD //
@@ -44,7 +43,7 @@ static THD_FUNCTION(CaptureImageBottom, arg) {
 
     while(1){
 		//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 0 + 1 (minimum 2 lines because reasons)
-		po8030_advanced_config(FORMAT_RGB565, 0, 10, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
+		po8030_advanced_config(FORMAT_RGB565, 0, 0, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
 		dcmi_enable_double_buffering();
 		dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
 		dcmi_prepare();
@@ -61,7 +60,7 @@ static THD_FUNCTION(CaptureImageBottom, arg) {
 		}
 
 		//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 0 + 1 (minimum 2 lines because reasons)
-		po8030_advanced_config(FORMAT_RGB565, 0, 300, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
+		po8030_advanced_config(FORMAT_RGB565, 0, TOP2BOTTOM_LINES_GAP, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
 		dcmi_enable_double_buffering();
 		dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
 		dcmi_prepare();
@@ -77,7 +76,7 @@ static THD_FUNCTION(CaptureImageBottom, arg) {
 		}
 
 		//signals an image has been captured
-		chBSemSignal(&image_bottom_captured_sem);
+		chBSemSignal(&image_captured_sem);
     }
 }
 // PROCESS IMAGE THREAD //
@@ -98,14 +97,11 @@ static THD_FUNCTION(ProcessImage, arg) {
 	uint16_t* bottom_pos; //bottom margins positions [left, right]
 	uint16_t* top_pos; //top margins positions [left, right]
 
-
-
-
 	bool send_to_computer = true;
 
 	while(1){
 		//waits until an image has been captured
-		chBSemWait(&image_bottom_captured_sem);
+		chBSemWait(&image_captured_sem);
 
 		for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE*4 ; i+=2){
 			//Extracts only the green pixels
@@ -136,10 +132,20 @@ static THD_FUNCTION(ProcessImage, arg) {
 		sendnote2buzzer(image_bottom);
 
 		// Calculate path's center and angle
-		path_processing(image_bottom, image_top);
+		int16_t test = path_processing(image_bottom, image_top);
 			
 		
 		// Send to computer (debug purposes)
+		if(send_to_computer){
+			//sends to the computer the image
+			for(int i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
+				image_resultat[i] = 0;
+			}
+			image_resultat[test+180] = 10;
+			SendUint8ToComputer(image_resultat, IMAGE_BUFFER_SIZE);
+		}
+		//invert the bool
+		send_to_computer = !send_to_computer;
 		/*if(send_to_computer){
 			//sends to the computer the image
 			for(int i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
@@ -342,9 +348,21 @@ void sendnote2buzzer(uint16_t *bottom_pos){
 	//envoie note + temps
 }
 
-void path_processing(image_bottom, image_top){
-	left_motor_set_speed(800);
-	right_motor_set_speed(800);
+int16_t path_processing(image_bottom, image_top){ //DEBUG fonction en void normalement
+	//définir x et angle du robot(y=0)
+	int16_t robot_angle = asin(((image_bottom[0]+image_bottom[2])/2. - (image_top[0]+image_top[2])/2.) / TOP2BOTTOM_LINES_GAP)*180/PI;//TODO: LIT for arcsin //[deg] -> int is ok
+	return robot_angle;
+	/*
+	int16_t x = sin(float(robot_angle*PI/180))*(TOP2MOTOR_DISTANCE - ((image_bottom[0]+image_bottom[2])/2.)/tan(float(robot_angle*PI/180));
+	//error angle process
+	int16_t yg = sqrt((Ks*speed)^2-(x^2)); //xg=0
+	if(yg!=0)
+		int16_t error_angle = 180 - (90-robot_angle) - atan(yg/x)*180/PI;//TODO: LIT for arctan
+	else
+		//error
+	*/
+	//left_motor_set_speed(800);
+	//right_motor_set_speed(800);
 }
 
 
