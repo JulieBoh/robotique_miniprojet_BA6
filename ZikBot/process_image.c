@@ -18,6 +18,7 @@
 
 //global
 uint8_t image_buffer[IMAGE_BUFFER_SIZE*4];
+uint8_t note_rel_pos; //[%]
 
 //semaphore
 static BSEMAPHORE_DECL(image_bottom_captured_sem, TRUE);
@@ -94,8 +95,9 @@ static THD_FUNCTION(ProcessImage, arg) {
 	uint8_t image_bottom[IMAGE_BUFFER_SIZE];
 	uint8_t image_top[IMAGE_BUFFER_SIZE];
 
-	uint16_t* bottom_pos; //bottom margins and notes position
-	uint16_t* top_pos; //top margins
+	uint16_t* bottom_pos; //bottom margins positions [left, right]
+	uint16_t* top_pos; //top margins positions [left, right]
+
 
 
 
@@ -124,22 +126,21 @@ static THD_FUNCTION(ProcessImage, arg) {
 			}
 		}
 
-		/* TO BE DONE : to be coded in many functions for the readability of the file*/
-			// Analyse bottom image -> store bottom margin position
-			//						-> identify note
-			bottom_pos = image_analyse(image_bottom, true);
-			top_pos = image_analyse(image_top, false);
+		// Analyse bottom image -> store bottom margin position
+		//						-> identify note
+		bottom_pos = image_analyse(image_bottom, true);
+		// Analyse top image -> store top margin position
+		top_pos = image_analyse(image_top, false);
 
-			// Call buzzer giving the note
-			// Analyse top image -> store top margin position
-			// Calculate path's center and angle
-			// Regulator
-			// Calculate motorspeed
-			// Call motor
+		// Call buzzer giving the note
+		sendnote2buzzer(image_bottom);
 
+		// Calculate path's center and angle
+		path_processing(image_bottom, image_top);
+			
 		
 		// Send to computer (debug purposes)
-		if(send_to_computer){
+		/*if(send_to_computer){
 			//sends to the computer the image
 			for(int i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
 				image_resultat[i] = 0;
@@ -153,7 +154,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 			SendUint8ToComputer(image_resultat, IMAGE_BUFFER_SIZE);
 		}
 		//invert the bool
-		send_to_computer = !send_to_computer;
+		send_to_computer = !send_to_computer;*/
 		
 	}
 }
@@ -333,5 +334,17 @@ void outlier_detection(uint16_t *lines_position, uint16_t (*lines_pos_history)[M
 	}
 }
 
+void sendnote2buzzer(uint16_t *bottom_pos){
+	//relative note position
+	note_rel_pos = (bottom_pos[2]-bottom_pos[0])*100/(bottom_pos[1]-bottom_pos[0]); //in % to avoid a float
+	//calcul le deta temps
+
+	//envoie note + temps
+}
+
+void path_processing(image_bottom, image_top){
+	left_motor_set_speed(800);
+	right_motor_set_speed(800);
+}
 
 
