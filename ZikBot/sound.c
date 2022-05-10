@@ -49,7 +49,7 @@ static THD_FUNCTION(Sound, arg) {
 }
 
 void sound_start(void){
-	chThdCreateStatic(waSound, sizeof(waSound), NORMALPRIO, Sound, NULL);
+	//chThdCreateStatic(waSound, sizeof(waSound), NORMALPRIO, Sound, NULL);
 }
 
 //void sound_test(int16_t* default_speed)
