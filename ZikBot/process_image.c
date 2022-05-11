@@ -131,21 +131,8 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 		// Calculate path's center and angle
 		int16_t test = path_processing(bottom_pos, top_pos);
-		static int I=0;
-		if(abs(test)>150)
-			test = 0;
-		int16_t moyenne_glissante = 0;
-		moyenne_glissante = (test/5) + 4*moyenne_glissante/5;
-		test= moyenne_glissante;
-		I += test;
-		//anti wind up
-		if(I<-50)
-			I = -50;
-		if(I>50)
-			I = 50;
 
-		right_motor_set_speed(0-(test*3)-(I/10));
-		left_motor_set_speed(0+(test*3))+(I/10);
+
 		
 		// Send to computer (debug purposes)
 		if(send_to_computer){
@@ -158,7 +145,6 @@ static THD_FUNCTION(ProcessImage, arg) {
 					image_resultat[bottom_pos_ptr[i]] = 100;
 				if(top_pos_ptr[i] !=0)
 					image_resultat[top_pos_ptr[i]] = 200;*/
-				image_resultat[300 + (I)] = 200;
 			}
 			SendUint8ToComputer(image_resultat, IMAGE_BUFFER_SIZE);
 		}
@@ -352,22 +338,30 @@ void sendnote2buzzer(uint16_t* bottom_pos_ptr){
 }
 
 int16_t path_processing(uint16_t* bottom_pos_ptr, uint16_t* top_pos_ptr){
-	//définir x et angle du robot(y=0)
-	//int16_t robot_angle = asin(((bottom_pos_ptr[0]+bottom_pos_ptr[2])/2. - (top_pos_ptr[0]+top_pos_ptr[2])/2.) / TOP2BOTTOM_LINES_GAP)*180/PI;//TODO: LIT for arcsin //[deg] -> int is ok
-	//int16_t robot_angle = ((bottom_pos_ptr[0]+bottom_pos_ptr[2])/2. - (top_pos_ptr[0]+top_pos_ptr[2])/2.);//TODO: LIT for arcsin //[deg] -> int is ok
-	/*
-	int16_t x = sin(float(robot_angle*PI/180))*(TOP2MOTOR_DISTANCE - ((bottom_pos_ptr[0]+bottom_pos_ptr[2])/2.)/tan(float(robot_angle*PI/180));
-	//error angle process
-	int16_t yg = sqrt((Ks*speed)^2-(x^2)); //xg=0
-	if(yg!=0)
-		int16_t error_angle = 180 - (90-robot_angle) - atan(yg/x)*180/PI;//TODO: LIT for arctan
-	else
-		//error
-	*/
-	//left_motor_set_speed(400/*-(1*robot_angle)*/);
-	//right_motor_set_speed(400/*+(1*robot_angle)*/);
+	static int I=0;
+	static int16_t moyenne_glissante = 0;
 
-	int16_t robot_angle = (bottom_pos_ptr[0]+bottom_pos_ptr[2])/2. - (IMAGE_BUFFER_SIZE/2);
+
+	int16_t robot_angle = (((bottom_pos_ptr[0]+bottom_pos_ptr[2])/2.)+((top_pos_ptr[0]+top_pos_ptr[2])/2.))/2. - (IMAGE_BUFFER_SIZE/2);
+	
+	if(abs(robot_angle)>200)
+		robot_angle = 0;
+	//moyenne_glissante = (3*robot_angle/5) + 2*moyenne_glissante/5;
+	//robot_angle= moyenne_glissante;
+
+	I += robot_angle;
+
+	//anti wind up
+	if(I<-50)
+		I = -50;
+	if(I>50)
+		I = 50;
+	I=0;
+
+	right_motor_set_speed(200-(robot_angle)-(I/30));
+	left_motor_set_speed(200+(robot_angle)+(I/30));
+
+
 	return robot_angle;
 }
 
