@@ -33,7 +33,7 @@ static THD_FUNCTION(Sound, arg) {
     {
     	playNote(get_note(proximity_topic), NOTE_DURATION);
 //		WORKING : CHANGES STANDARD SPEED OF THE ROBOT
-   		get_tempo(&default_speed, proximity_topic);
+   		/*get_tempo(&default_speed, proximity_topic);
    		running = 1;
    		if(running)
    		{
@@ -43,7 +43,7 @@ static THD_FUNCTION(Sound, arg) {
    				default_speed = -14;
    			left_motor_set_speed(CM_TO_STEPS(default_speed));
    			right_motor_set_speed(CM_TO_STEPS(default_speed));
-   		}
+   		}*/
 
     }
 }
@@ -65,7 +65,7 @@ void sound_start(void){
 //}
 
 #define SCALE_SIZE 8
-static const uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C3, NOTE_D3, NOTE_E3, NOTE_F3, NOTE_G3, NOTE_A3, NOTE_B3, NOTE_C4};
+static const uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C4, NOTE_D4, NOTE_E4, NOTE_F4, NOTE_G4, NOTE_A4, NOTE_B4, NOTE_C5};
 
 static uint16_t get_note(messagebus_topic_t *proximity_topic)
 {
