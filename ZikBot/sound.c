@@ -11,6 +11,7 @@
 
 #include "sound.h"
 #include "tempo.h"
+#include "process_image.h"
 
 #define CM_TO_STEPS(cm) (1000*(cm)/13) //converts distances for e-puck2 motors
 #define MELODY_LENGTH 1
@@ -64,22 +65,21 @@ void sound_start(void){
 //	}
 //}
 
-#define SCALE_SIZE 8
-static const uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C4, NOTE_D4, NOTE_E4, NOTE_F4, NOTE_G4, NOTE_A4, NOTE_B4, NOTE_C5};
+#define SCALE_SIZE 5
+#define REL_POS_THRESHOLD (100/SCALE_SIZE)
+//static const uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C4, NOTE_D4, NOTE_E4, NOTE_F4, NOTE_G4, NOTE_A4, NOTE_B4, NOTE_C5};
+static const uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C4, NOTE_E4, NOTE_G4, NOTE_B4, NOTE_D4};
+
 
 static uint16_t get_note(messagebus_topic_t *proximity_topic)
 {
-	proximity_msg_t prox_buf;
-
-	if(messagebus_topic_read(proximity_topic, &prox_buf, sizeof(proximity_msg_t)))
-	{
 		for(uint8_t i=0; i < SCALE_SIZE; i++)
 		{
-			if(prox_buf.delta[i] > 250)
+			if(note_rel_pos < REL_POS_THRESHOLD*(i+1))
 			{
 				return c_major_scale[i];
 			}
 		}
-	}
+
 	return 0;
 }

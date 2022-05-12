@@ -357,10 +357,10 @@ int16_t path_processing(uint16_t* bottom_pos_ptr, uint16_t* top_pos_ptr){
 	if(I>50)
 		I = 50;
 	I=0;
-
+/*
 	right_motor_set_speed(200-(robot_angle)-(I/30));
 	left_motor_set_speed(200+(robot_angle)+(I/30));
-
+*/
 
 	return robot_angle;
 }
