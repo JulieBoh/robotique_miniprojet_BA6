@@ -9,8 +9,8 @@
 #include <tempo.h>
 
 #include <main.h>
-#include <motors.h>
-#include <process_image.h>
+//#include <motors.h>
+//#include <process_image.h>
 
 #define PROX_RIGHT	 3 //unused
 #define PROX_LEFT	 6 //unused
