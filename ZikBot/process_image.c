@@ -141,10 +141,10 @@ static THD_FUNCTION(ProcessImage, arg) {
 				image_resultat[i] = 0;
 			}
 			for(uint8_t i = 0; i<MAX_LINE_NBR; i++){
-				/*if(bottom_pos_ptr[i] !=0)
+				if(bottom_pos_ptr[i] !=0)
 					image_resultat[bottom_pos_ptr[i]] = 100;
 				if(top_pos_ptr[i] !=0)
-					image_resultat[top_pos_ptr[i]] = 200;*/
+					image_resultat[top_pos_ptr[i]] = 200;
 			}
 			SendUint8ToComputer(image_resultat, IMAGE_BUFFER_SIZE);
 		}
@@ -238,9 +238,6 @@ uint16_t * image_analyse(const uint8_t* image, bool is_reading_bottom){
 
 		return lines_top_position;
 	}
-
-
-	
 }
 
 void outlier_detection(uint16_t *lines_position, uint16_t (*lines_pos_history)[MAX_LINE_NBR], uint8_t line_nbr){
@@ -358,8 +355,8 @@ int16_t path_processing(uint16_t* bottom_pos_ptr, uint16_t* top_pos_ptr){
 		I = 50;
 	I=0;
 
-	right_motor_set_speed(200-(robot_angle)-(I/30));
-	left_motor_set_speed(200+(robot_angle)+(I/30));
+	right_motor_set_speed(-(robot_angle)-(I/30));
+	left_motor_set_speed((robot_angle)+(I/30));
 
 
 	return robot_angle;
