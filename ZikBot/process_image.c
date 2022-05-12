@@ -15,11 +15,9 @@
 #define MIN_LINE_WIDTH 10
 #define LINES_POS_HISTORY_SIZE 10
 #define SLOPE_WIDTH 5
-#define TOP2BOTTOM_LINES_GAP 300
-#define PI 3.14
+#define BASE_MOTOR_SPEED 200
 
 //global
-uint8_t image_buffer[IMAGE_BUFFER_SIZE*4];
 uint8_t note_rel_pos; //[%]
 
 //semaphore
@@ -39,34 +37,11 @@ static THD_FUNCTION(CaptureImageBottom, arg) {
 	dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
 	dcmi_prepare();
 
-
-
     while(1){
-
         //starts a capture
 		dcmi_capture_start();
 		//waits for the capture to be done
 		wait_image_ready();
-
-		uint8_t * last_image_ptr = dcmi_get_last_image_ptr();
-		for(uint16_t i=0; i<IMAGE_BUFFER_SIZE*2; i++){
-			image_buffer[i] = last_image_ptr[i];
-		}
-		/*
-		//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 0 + 1 (minimum 2 lines because reasons)
-		po8030_advanced_config(FORMAT_RGB565, 0, TOP2BOTTOM_LINES_GAP, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
-		dcmi_prepare();
-		
-		//starts a capture
-		dcmi_capture_start();
-		//waits for the capture to be done
-		wait_image_ready();
-
-		last_image_ptr = dcmi_get_last_image_ptr();
-		for(uint16_t i=0; i<IMAGE_BUFFER_SIZE*2; i++){
-			image_buffer[i+(IMAGE_BUFFER_SIZE*2)] = last_image_ptr[i];
-		}
-		*/
 		//signals an image has been captured
 		chBSemSignal(&image_captured_sem);
     }
@@ -81,20 +56,20 @@ static THD_FUNCTION(ProcessImage, arg) {
     (void)arg;
 
 	uint8_t image_resultat[IMAGE_BUFFER_SIZE] = {0};
-	uint8_t image_bottom[IMAGE_BUFFER_SIZE];
-	uint8_t image_top[IMAGE_BUFFER_SIZE];
+	uint8_t image[IMAGE_BUFFER_SIZE];
 
-	uint16_t* bottom_pos_ptr; //bottom margins positions [left, right]
-	uint16_t* top_pos_ptr; //top margins positions [left, right]
+	uint8_t * image_buffer;
+	uint16_t* pos_ptr; //bottom margins positions [left, right]
 
-	uint16_t bottom_pos[MAX_LINE_NBR]; //bottom margins positions [left, right]
-	uint16_t top_pos[MAX_LINE_NBR]; //top margins positions [left, right]
+	uint16_t pos[MAX_LINE_NBR]; //bottom margins positions [left, right]
 
 	bool send_to_computer = true;
 
 	while(1){
 		//waits until an image has been captured
 		chBSemWait(&image_captured_sem);
+
+		image_buffer = dcmi_get_last_image_ptr();
 
 		for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE*4 ; i+=2){
 			//Extracts only the green pixels
@@ -105,34 +80,22 @@ static THD_FUNCTION(ProcessImage, arg) {
 			uint8_t pix_lo = image_buffer[i+1];
 			pix_lo = (0b11100000 & pix_lo)>>5;
 				//combine both in image to be sent
-			
-			//Split the 2 lines into 2 arrays, one for bottom and one for top
-			if(i<(IMAGE_BUFFER_SIZE*2)){
-				image_bottom[i/2] = pix_hi | pix_lo;
-			}
-			else{
-				image_top[i/2 - IMAGE_BUFFER_SIZE] = pix_hi | pix_lo;
-			}
+			image[i/2] = pix_hi | pix_lo;
 		}
 
 		// Analyse bottom image -> store bottom margin position
 		//						-> identify note
-		bottom_pos_ptr = image_analyse(image_bottom, true);
-		// Analyse top image -> store top margin position
-		//top_pos_ptr = image_analyse(image_top, false); TEST
+		pos_ptr = image_analyse(image);
 
 		for(uint8_t i=0; i<MAX_LINE_NBR; i++){
-			bottom_pos[i] = bottom_pos_ptr[i];
-			//top_pos[i] = top_pos_ptr[i]; TEST
+			pos[i] = pos_ptr[i];
 		}
 
 		// Call buzzer giving the note
-		sendnote2buzzer(bottom_pos);
+		sendnote2buzzer(pos);
 
 		// Calculate path's center and angle
-		int16_t test = path_processing(bottom_pos, top_pos);
-		//right_motor_set_speed(200);
-		//left_motor_set_speed(200);
+		path_processing(pos);
 
 		// Send to computer (debug purposes)
 		if(send_to_computer){
@@ -141,12 +104,10 @@ static THD_FUNCTION(ProcessImage, arg) {
 				image_resultat[i] = 0;
 			}*/
 			for(uint8_t i = 0; i<MAX_LINE_NBR; i++){
-				if(bottom_pos[i] !=0)
-					image_bottom[test] = 100;
-				//if(top_pos[i] !=0)
-				//	image_resultat[top_pos[i]] = 200;
+				if(pos[i] !=0)
+					image[note_rel_pos] = 100;
 			}
-			SendUint8ToComputer(image_bottom, IMAGE_BUFFER_SIZE);
+			SendUint8ToComputer(image, IMAGE_BUFFER_SIZE);
 		}
 		//invert the bool
 		send_to_computer = !send_to_computer;
@@ -160,7 +121,7 @@ void process_image_start(void){
 	chThdCreateStatic(waCaptureImageBottom, sizeof(waCaptureImageBottom), NORMALPRIO, CaptureImageBottom, NULL);
 }
 
-uint16_t * image_analyse(const uint8_t* image, bool is_reading_bottom){
+uint16_t * image_analyse(const uint8_t* image){
 	bool in_line = false;
 	uint8_t noise = 0, line_nbr = 0;
 	uint8_t comparison_value = image[0];
@@ -169,13 +130,9 @@ uint16_t * image_analyse(const uint8_t* image, bool is_reading_bottom){
 	uint16_t end[MAX_LINE_NBR] = {0};
 	uint32_t mean = 0;
 
-	static uint16_t lines_bottom_position[MAX_LINE_NBR] = {0};
-	static uint16_t begin_bottom_history[LINES_POS_HISTORY_SIZE][MAX_LINE_NBR] = {0};
-	static uint16_t end_bottom_history[LINES_POS_HISTORY_SIZE][MAX_LINE_NBR] = {0};
-
-	static uint16_t lines_top_position[MAX_LINE_NBR] = {0};
-	static uint16_t begin_top_history[LINES_POS_HISTORY_SIZE][MAX_LINE_NBR] = {0};
-	static uint16_t end_top_history[LINES_POS_HISTORY_SIZE][MAX_LINE_NBR] = {0};
+	static uint16_t lines_position[MAX_LINE_NBR] = {0};
+	static uint16_t begin_history[LINES_POS_HISTORY_SIZE][MAX_LINE_NBR] = {0};
+	static uint16_t end_history[LINES_POS_HISTORY_SIZE][MAX_LINE_NBR] = {0};
 
 	//performs an average to now the noise threshold
 	for(i = 0 ; i < IMAGE_BUFFER_SIZE -1 ; i++){
@@ -210,36 +167,22 @@ uint16_t * image_analyse(const uint8_t* image, bool is_reading_bottom){
 		}
 		i++;
 	}
-	
 	//begin and end value filtering
-	if(is_reading_bottom){
-		outlier_detection(begin, begin_bottom_history, line_nbr);
-		outlier_detection(end, end_bottom_history, line_nbr);
-		
-		lines_bottom_position[0] = (end[0]+begin[0])/2;
-		lines_bottom_position[2] = (end[line_nbr-1]+begin[line_nbr-1])/2;
-		//Note detected position
-		if(line_nbr == 3){
-			lines_bottom_position[1] = (end[1]+begin[1])/2;
-		}
-		else{
-			lines_bottom_position[1] = 0;
-		}
-
-		return lines_bottom_position;
+	outlier_detection(begin, begin_history, line_nbr);
+	outlier_detection(end, end_history, line_nbr);
+	
+	lines_position[0] = (end[0]+begin[0])/2;
+	lines_position[2] = (end[line_nbr-1]+begin[line_nbr-1])/2;
+	//Note detected position
+	if(line_nbr == 3){
+		lines_position[1] = (end[1]+begin[1])/2;
 	}
 	else{
-		outlier_detection(begin, begin_top_history, line_nbr);
-		outlier_detection(end, end_top_history, line_nbr);
-
-		lines_top_position[0] = (end[0]+begin[0])/2;
-		lines_top_position[1] = 0;
-		lines_top_position[2] = (end[line_nbr-1]+begin[line_nbr-1])/2;
-
-		return lines_top_position;
+		lines_position[1] = 0;
 	}
+	return lines_position;
 }
-
+/* TO DO*/
 void outlier_detection(uint16_t *lines_position, uint16_t (*lines_pos_history)[MAX_LINE_NBR], uint8_t line_nbr){
 	uint8_t i = 0;
 	uint16_t history_mean = 0;
@@ -326,39 +269,26 @@ void outlier_detection(uint16_t *lines_position, uint16_t (*lines_pos_history)[M
 	}
 }
 
-void sendnote2buzzer(uint16_t* bottom_pos_ptr){
+void sendnote2buzzer(uint16_t* pos_ptr){
 	//relative note position
-	note_rel_pos = (bottom_pos_ptr[2]-bottom_pos_ptr[0])*100/(bottom_pos_ptr[1]-bottom_pos_ptr[0]); //in % to avoid a float
+	note_rel_pos = (pos_ptr[1]-pos_ptr[0])*100/(pos_ptr[2]-pos_ptr[0]); //in % to avoid a float
 	//calcul le deta temps
 
 	//envoie note + temps
 }
 
-int16_t path_processing(uint16_t* bottom_pos_ptr, uint16_t* top_pos_ptr){
-	static int I=0;
-	static int16_t moyenne_glissante;
-
-
-	int16_t robot_angle = ((bottom_pos_ptr[0]+bottom_pos_ptr[2])/2.) - (IMAGE_BUFFER_SIZE/2);
+void path_processing(uint16_t* pos_ptr){
+	static int16_t motor_speed = 0;
+	int16_t robot_angle = ((pos_ptr[0]+pos_ptr[2])/2.) - (IMAGE_BUFFER_SIZE/2);
 	
+	//filter
 	if(abs(robot_angle)>200)
 		robot_angle = 0;
-	moyenne_glissante = (3*robot_angle/5) + 2*moyenne_glissante/5;
-	robot_angle= moyenne_glissante;
+	motor_speed = (3*robot_angle/5) + 2*motor_speed/5;
 
-	I += robot_angle;
-
-	//anti wind up
-	if(I<-50)
-		I = -50;
-	if(I>50)
-		I = 50;
-	I=0;
-
-	right_motor_set_speed(200-(robot_angle)-(I/30));
-	left_motor_set_speed(200+(robot_angle)+(I/30));
-
-
+	//motor
+	right_motor_set_speed(BASE_MOTOR_SPEED-motor_speed);
+	left_motor_set_speed(BASE_MOTOR_SPEED+motor_speed);
 
 	return robot_angle;
 }
