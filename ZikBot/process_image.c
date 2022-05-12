@@ -142,9 +142,9 @@ static THD_FUNCTION(ProcessImage, arg) {
 			}
 			for(uint8_t i = 0; i<MAX_LINE_NBR; i++){
 				if(bottom_pos_ptr[i] !=0)
-					image_resultat[bottom_pos_ptr[i]] = 100;
+					image_resultat[bottom_pos[i]] = 100;
 				if(top_pos_ptr[i] !=0)
-					image_resultat[top_pos_ptr[i]] = 200;
+					image_resultat[top_pos[i]] = 200;
 			}
 			SendUint8ToComputer(image_resultat, IMAGE_BUFFER_SIZE);
 		}
