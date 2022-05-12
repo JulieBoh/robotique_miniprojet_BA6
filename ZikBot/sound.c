@@ -28,9 +28,12 @@ static THD_FUNCTION(Sound, arg) {
     int16_t default_speed = 0;
 	messagebus_topic_t *proximity_topic = messagebus_find_topic_blocking(&bus, "/proximity");
 	static uint8_t running = 0;
+	systime_t time;
+
 
     while(1)
     {
+		time = chVTGetSystemTime();
     	//playNote(get_note(proximity_topic), NOTE_DURATION); //chut
 //		WORKING : CHANGES STANDARD SPEED OF THE ROBOT
    		/*get_tempo(&default_speed, proximity_topic);
@@ -44,7 +47,7 @@ static THD_FUNCTION(Sound, arg) {
    			left_motor_set_speed(CM_TO_STEPS(default_speed));
    			right_motor_set_speed(CM_TO_STEPS(default_speed));
    		}*/
-
+		chThdSleepUntilWindowed(time, time + MS2ST(10));
     }
 }
 

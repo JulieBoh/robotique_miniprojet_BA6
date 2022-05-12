@@ -11,7 +11,7 @@
 #include <process_image.h>
 
 //DEFINE
-#define NOISE_RATIO 0.25
+#define NOISE_RATIO 0.15
 #define MIN_LINE_WIDTH 10
 #define LINES_POS_HISTORY_SIZE 10
 #define SLOPE_WIDTH 5
@@ -34,14 +34,14 @@ static THD_FUNCTION(CaptureImageBottom, arg) {
     (void)arg;
 
 	//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 0 + 1 (minimum 2 lines because reasons)
+	po8030_advanced_config(FORMAT_RGB565, 0, 300, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
 	dcmi_enable_double_buffering();
 	dcmi_set_capture_mode(CAPTURE_ONE_SHOT);
+	dcmi_prepare();
+
 
 
     while(1){
-		//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 0 + 1 (minimum 2 lines because reasons)
-		po8030_advanced_config(FORMAT_RGB565, 0, 0, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
-		dcmi_prepare();
 
         //starts a capture
 		dcmi_capture_start();
@@ -52,7 +52,7 @@ static THD_FUNCTION(CaptureImageBottom, arg) {
 		for(uint16_t i=0; i<IMAGE_BUFFER_SIZE*2; i++){
 			image_buffer[i] = last_image_ptr[i];
 		}
-
+		/*
 		//Takes pixels 0 to IMAGE_BUFFER_SIZE of the line 0 + 1 (minimum 2 lines because reasons)
 		po8030_advanced_config(FORMAT_RGB565, 0, TOP2BOTTOM_LINES_GAP, IMAGE_BUFFER_SIZE, 2, SUBSAMPLING_X1, SUBSAMPLING_X1);
 		dcmi_prepare();
@@ -66,7 +66,7 @@ static THD_FUNCTION(CaptureImageBottom, arg) {
 		for(uint16_t i=0; i<IMAGE_BUFFER_SIZE*2; i++){
 			image_buffer[i+(IMAGE_BUFFER_SIZE*2)] = last_image_ptr[i];
 		}
-
+		*/
 		//signals an image has been captured
 		chBSemSignal(&image_captured_sem);
     }
@@ -80,7 +80,7 @@ static THD_FUNCTION(ProcessImage, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
 
-	uint8_t image_resultat[IMAGE_BUFFER_SIZE];
+	uint8_t image_resultat[IMAGE_BUFFER_SIZE] = {0};
 	uint8_t image_bottom[IMAGE_BUFFER_SIZE];
 	uint8_t image_top[IMAGE_BUFFER_SIZE];
 
@@ -119,11 +119,11 @@ static THD_FUNCTION(ProcessImage, arg) {
 		//						-> identify note
 		bottom_pos_ptr = image_analyse(image_bottom, true);
 		// Analyse top image -> store top margin position
-		top_pos_ptr = image_analyse(image_top, false);
+		//top_pos_ptr = image_analyse(image_top, false); TEST
 
 		for(uint8_t i=0; i<MAX_LINE_NBR; i++){
 			bottom_pos[i] = bottom_pos_ptr[i];
-			top_pos[i] = top_pos_ptr[i];
+			//top_pos[i] = top_pos_ptr[i]; TEST
 		}
 
 		// Call buzzer giving the note
@@ -131,22 +131,22 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 		// Calculate path's center and angle
 		int16_t test = path_processing(bottom_pos, top_pos);
+		//right_motor_set_speed(200);
+		//left_motor_set_speed(200);
 
-
-		
 		// Send to computer (debug purposes)
 		if(send_to_computer){
 			//sends to the computer the image
-			for(int i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
+			/*for(int i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
 				image_resultat[i] = 0;
-			}
+			}*/
 			for(uint8_t i = 0; i<MAX_LINE_NBR; i++){
-				if(bottom_pos_ptr[i] !=0)
-					image_resultat[bottom_pos[i]] = 100;
-				if(top_pos_ptr[i] !=0)
-					image_resultat[top_pos[i]] = 200;
+				if(bottom_pos[i] !=0)
+					image_bottom[test] = 100;
+				//if(top_pos[i] !=0)
+				//	image_resultat[top_pos[i]] = 200;
 			}
-			SendUint8ToComputer(image_resultat, IMAGE_BUFFER_SIZE);
+			SendUint8ToComputer(image_bottom, IMAGE_BUFFER_SIZE);
 		}
 		//invert the bool
 		send_to_computer = !send_to_computer;
@@ -336,15 +336,15 @@ void sendnote2buzzer(uint16_t* bottom_pos_ptr){
 
 int16_t path_processing(uint16_t* bottom_pos_ptr, uint16_t* top_pos_ptr){
 	static int I=0;
-	static int16_t moyenne_glissante = 0;
+	static int16_t moyenne_glissante;
 
 
-	int16_t robot_angle = (((bottom_pos_ptr[0]+bottom_pos_ptr[2])/2.)+((top_pos_ptr[0]+top_pos_ptr[2])/2.))/2. - (IMAGE_BUFFER_SIZE/2);
+	int16_t robot_angle = ((bottom_pos_ptr[0]+bottom_pos_ptr[2])/2.) - (IMAGE_BUFFER_SIZE/2);
 	
 	if(abs(robot_angle)>200)
 		robot_angle = 0;
-	//moyenne_glissante = (3*robot_angle/5) + 2*moyenne_glissante/5;
-	//robot_angle= moyenne_glissante;
+	moyenne_glissante = (3*robot_angle/5) + 2*moyenne_glissante/5;
+	robot_angle= moyenne_glissante;
 
 	I += robot_angle;
 
@@ -355,8 +355,9 @@ int16_t path_processing(uint16_t* bottom_pos_ptr, uint16_t* top_pos_ptr){
 		I = 50;
 	I=0;
 
-	right_motor_set_speed(-(robot_angle)-(I/30));
-	left_motor_set_speed((robot_angle)+(I/30));
+	right_motor_set_speed(200-(robot_angle)-(I/30));
+	left_motor_set_speed(200+(robot_angle)+(I/30));
+
 
 
 	return robot_angle;
