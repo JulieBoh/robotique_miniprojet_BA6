@@ -31,7 +31,7 @@ static THD_FUNCTION(Sound, arg) {
 
     while(1)
     {
-    	playNote(get_note(proximity_topic), NOTE_DURATION);
+    	//playNote(get_note(proximity_topic), NOTE_DURATION); //chut
 //		WORKING : CHANGES STANDARD SPEED OF THE ROBOT
    		/*get_tempo(&default_speed, proximity_topic);
    		running = 1;
