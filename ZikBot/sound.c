@@ -11,6 +11,7 @@
 
 #include "sound.h"
 #include "tempo.h"
+#include "process_image.h"
 
 #define CM_TO_STEPS(cm) (1000*(cm)/13) //converts distances for e-puck2 motors
 #define MELODY_LENGTH 1
@@ -34,7 +35,7 @@ static THD_FUNCTION(Sound, arg) {
     while(1)
     {
 		time = chVTGetSystemTime();
-    	//playNote(get_note(proximity_topic), NOTE_DURATION); //chut
+    	playNote(get_note(proximity_topic), NOTE_DURATION); //chut
 //		WORKING : CHANGES STANDARD SPEED OF THE ROBOT
    		/*get_tempo(&default_speed, proximity_topic);
    		running = 1;
@@ -67,22 +68,36 @@ void sound_start(void){
 //	}
 //}
 
-#define SCALE_SIZE 8
-static const uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C4, NOTE_D4, NOTE_E4, NOTE_F4, NOTE_G4, NOTE_A4, NOTE_B4, NOTE_C5};
+
+#define SCALE_SIZE 5
+#define REL_POS_THRESHOLD (100/SCALE_SIZE)
+//static const uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C4, NOTE_D4, NOTE_E4, NOTE_F4, NOTE_G4, NOTE_A4, NOTE_B4, NOTE_C5};
+static const uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C4, NOTE_E4, NOTE_G4, NOTE_B4, NOTE_D4};
 
 static uint16_t get_note(messagebus_topic_t *proximity_topic)
 {
-	proximity_msg_t prox_buf;
-
-	if(messagebus_topic_read(proximity_topic, &prox_buf, sizeof(proximity_msg_t)))
-	{
-		for(uint8_t i=0; i < SCALE_SIZE; i++)
-		{
-			if(prox_buf.delta[i] > 250)
-			{
-				return c_major_scale[i];
-			}
+    /*for(uint8_t i=0; i < SCALE_SIZE; i++){
+      	if(note_rel_pos < (i+1)*REL_POS_THRESHOLD){
+        	return c_major_scale[i];
 		}
+    }*/
+
+	//test de fréquence
+	static uint8_t i = 0;
+	static uint16_t j = 0;
+	if(i==0){
+		if(j>10){
+			i=1;
+			j=0;
+		}
+		j++;
 	}
-	return 0;
+	if(i==1){
+		if(j>10){
+			i=0;
+			j=0;
+		}
+		j++;
+	}
+  	return c_major_scale[i];
 }
