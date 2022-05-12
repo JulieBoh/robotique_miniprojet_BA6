@@ -9,7 +9,7 @@ extern uint8_t note_rel_pos; //[%]
 void process_image_start(void);
 uint16_t * image_analyse(const uint8_t* image, bool is_reading_bottom);
 void outlier_detection(uint16_t* lines_position, uint16_t (*lines_pos_history)[MAX_LINE_NBR], uint8_t line_nbr);
-void sendnote2buzzer(uint16_t *bottom_pos);
-void path_processing(image_bottom, image_top);
+void sendnote2buzzer(uint16_t* bottom_pos);
+int16_t path_processing(uint16_t* bottom_pos, uint16_t* top_pos);
 
 #endif /* PROCESS_IMAGE_H */
