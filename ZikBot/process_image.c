@@ -273,8 +273,6 @@ void outlier_detection(uint16_t *lines_position, uint16_t (*lines_pos_history)[M
 void sendnote2buzzer(uint16_t* pos_ptr){
 	//relative note position
 	note_rel_pos = (pos_ptr[1]-pos_ptr[0])*100/(pos_ptr[2]-pos_ptr[0]); //in % to avoid a float
-	chBSemSignal(&note_ready_sem);
-
 	//calcul le deta temps
 
 	//envoie note + temps

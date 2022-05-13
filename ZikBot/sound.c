@@ -23,32 +23,23 @@
 
 static uint16_t get_note(void);
 
-
-static THD_WORKING_AREA(waSound, 256);
-static THD_FUNCTION(Sound, arg) {
+static THD_WORKING_AREA(waPiRegulator, 256);
+static THD_FUNCTION(PiRegulator, arg) {
 
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
 
     while(1)
-    {
-     	set_led(LED3, 2);
-//		time = chVTGetSystemTime();
-//    	playNote(get_note(), NOTE_DURATION); //chut
-     	uint16_t note = get_note();
-     	if(note != 0){
-     			dac_play(note);
-     		}
-		chBSemWait(&note_ready_sem);
-     	dac_stop();
-//		chThdSleepUntilWindowed(time, time + MS2ST(200));
-     }
+        {
+         	set_led(LED3, 2);
+         	playNote(get_note(), NOTE_DURATION); //chut
+
+         }
 }
 
-void sound_start(void){
-	chThdCreateStatic(waSound, sizeof(waSound), (NORMALPRIO+1), Sound, NULL);
+void pi_regulator_start(void){
+	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO, PiRegulator, NULL);
 }
-
 
 #define SCALE_SIZE 5
 #define REL_POS_THRESHOLD (100/SCALE_SIZE)

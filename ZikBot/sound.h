@@ -6,11 +6,8 @@
 
 extern messagebus_t bus;
 
-//starts the sound thread
-void sound_start(void);
-
-void sound_test(int16_t* default_speed);
+void pi_regulator_start(void);
 
 
 
-#endif /* TEMPO_H */
+#endif /* SOUND_H */
