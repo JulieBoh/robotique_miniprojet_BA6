@@ -7,6 +7,7 @@
 #include <camera/po8030.h>
 #include <leds.h>
 #include <math.h>
+#include <motors.h>
 
 #include <process_image.h>
 
@@ -55,7 +56,7 @@ static THD_FUNCTION(ProcessImage, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
 
-	uint8_t image_resultat[IMAGE_BUFFER_SIZE] = {0};
+	//uint8_t image_resultat[IMAGE_BUFFER_SIZE] = {0};
 	uint8_t image[IMAGE_BUFFER_SIZE];
 
 	uint8_t * image_buffer;
@@ -63,7 +64,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 	uint16_t pos[MAX_LINE_NBR]; //bottom margins positions [left, right]
 
-	bool send_to_computer = true;
+//	bool send_to_computer = true;
 
 	while(1){
 		//waits until an image has been captured
@@ -98,19 +99,19 @@ static THD_FUNCTION(ProcessImage, arg) {
 		path_processing(pos);
 
 		// Send to computer (debug purposes)
-		if(send_to_computer){
-			//sends to the computer the image
-			/*for(int i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
-				image_resultat[i] = 0;
-			}*/
-			for(uint8_t i = 0; i<MAX_LINE_NBR; i++){
-				if(pos[i] !=0)
-					image[note_rel_pos] = 100;
-			}
-			SendUint8ToComputer(image, IMAGE_BUFFER_SIZE);
-		}
-		//invert the bool
-		send_to_computer = !send_to_computer;
+//		if(send_to_computer){
+//			//sends to the computer the image
+//			/*for(int i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
+//				image_resultat[i] = 0;
+//			}*/
+//			for(uint8_t i = 0; i<MAX_LINE_NBR; i++){
+//				if(pos[i] !=0)
+//					image[note_rel_pos] = 100;
+//			}
+//			SendUint8ToComputer(image, IMAGE_BUFFER_SIZE);
+//		}
+//		//invert the bool
+//		send_to_computer = !send_to_computer;
 		
 	}
 }

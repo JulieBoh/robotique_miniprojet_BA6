@@ -58,9 +58,9 @@ static const uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C4, NOTE_E4, NOTE_G4, NO
 static uint16_t get_note(void)
 {
 	uint8_t rel_pos = get_rel_pos();
-	if(rel_pos == 0){
+
+	if(rel_pos == 0)
 		return 0;
-	}
     for(uint8_t i=0; i < SCALE_SIZE; i++){
     	if(rel_pos < (i+1)*REL_POS_THRESHOLD){
         	return c_major_scale[i];
