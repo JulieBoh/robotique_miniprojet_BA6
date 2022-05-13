@@ -32,13 +32,13 @@ static THD_FUNCTION(PiRegulator, arg) {
     while(1)
         {
          	set_led(LED3, 2);
-         	playNote(get_note(), NOTE_DURATION); //chut
-
+//         	playNote(get_note(), NOTE_DURATION); //chut
+            chThdSleepMilliseconds(500);
          }
 }
 
 void pi_regulator_start(void){
-	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO, PiRegulator, NULL);
+	chThdCreateStatic(waPiRegulator, sizeof(waPiRegulator), NORMALPRIO+1, PiRegulator, NULL);
 }
 
 #define SCALE_SIZE 5
@@ -59,3 +59,4 @@ static uint16_t get_note(void)
     }
     return 0;//in case we're out of luck
 }
+

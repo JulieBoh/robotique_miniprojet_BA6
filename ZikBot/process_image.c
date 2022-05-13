@@ -20,6 +20,7 @@
 
 //global
 static uint8_t note_rel_pos; //[%]
+static uint16_t lines_position[MAX_LINE_NBR] = {0};
 
 //semaphore
 static BSEMAPHORE_DECL(image_captured_sem, TRUE);
@@ -60,7 +61,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 	uint8_t image[IMAGE_BUFFER_SIZE];
 
 	uint8_t * image_buffer;
-	uint16_t* pos_ptr; //bottom margins positions [left, right]
+//	uint16_t* pos_ptr; //bottom margins positions [left, right]
 
 	uint16_t pos[MAX_LINE_NBR]; //bottom margins positions [left, right]
 
@@ -86,10 +87,10 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 		// Analyse bottom image -> store bottom margin position
 		//						-> identify note
-		pos_ptr = image_analyse(image);
+		image_analyse(image);
 
 		for(uint8_t i=0; i<MAX_LINE_NBR; i++){
-			pos[i] = pos_ptr[i];
+			pos[i] = lines_position[i];
 		}
 
 		// Call buzzer giving the note
@@ -112,7 +113,8 @@ static THD_FUNCTION(ProcessImage, arg) {
 //		}
 //		//invert the bool
 //		send_to_computer = !send_to_computer;
-		
+        chThdSleepMilliseconds(1000);
+
 	}
 }
 
@@ -122,7 +124,7 @@ void process_image_start(void){
 	chThdCreateStatic(waCaptureImageBottom, sizeof(waCaptureImageBottom), NORMALPRIO, CaptureImageBottom, NULL);
 }
 
-uint16_t * image_analyse(const uint8_t* image){
+void image_analyse(const uint8_t* image){
 	bool in_line = false;
 	uint8_t noise = 0, line_nbr = 0;
 	uint8_t comparison_value = image[0];
@@ -131,11 +133,10 @@ uint16_t * image_analyse(const uint8_t* image){
 	uint16_t end[MAX_LINE_NBR] = {0};
 	uint32_t mean = 0;
 
-	static uint16_t lines_position[MAX_LINE_NBR] = {0};
 	static uint16_t begin_history[LINES_POS_HISTORY_SIZE][MAX_LINE_NBR] = {0};
 	static uint16_t end_history[LINES_POS_HISTORY_SIZE][MAX_LINE_NBR] = {0};
 
-	//performs an average to now the noise threshold
+	//performs an average to know the noise threshold
 	for(i = 0 ; i < IMAGE_BUFFER_SIZE -1 ; i++){
 		mean += image[i];
 	}
@@ -145,12 +146,12 @@ uint16_t * image_analyse(const uint8_t* image){
 	
 	//analyse buffer with slope detection
 	i=0;
-	while(i < IMAGE_BUFFER_SIZE-SLOPE_WIDTH){
+	while(i < 80/*IMAGE_BUFFER_SIZE-SLOPE_WIDTH*/){
 		//if below the threshold : begin
 		if(image[i+SLOPE_WIDTH] < (comparison_value - noise)){
 	        width_line++;
-			if(width_line == MIN_LINE_WIDTH - 1 && line_nbr < MAX_LINE_NBR){ //when the margin reach the desired width
-				begin[line_nbr] = i - (width_line - 2);
+			if((width_line == MIN_LINE_WIDTH - 1) && (line_nbr < MAX_LINE_NBR)){ //when the margin reach the desired width
+				begin[line_nbr] = i - (width_line - 2); //explainn why -2
 				in_line = true;
 			}
 		}
@@ -181,10 +182,10 @@ uint16_t * image_analyse(const uint8_t* image){
 	else{
 		lines_position[1] = 0;
 	}
-	return lines_position;
+	//return lines_position;
 }
 /* TO DO*/
-void outlier_detection(uint16_t *lines_position, uint16_t (*lines_pos_history)[MAX_LINE_NBR], uint8_t line_nbr){
+void outlier_detection(uint16_t *new_lines_pos, uint16_t (*lines_pos_history)[MAX_LINE_NBR], uint8_t line_nbr){
 	uint8_t i = 0;
 	uint16_t history_mean = 0;
 
@@ -197,63 +198,63 @@ void outlier_detection(uint16_t *lines_position, uint16_t (*lines_pos_history)[M
 				lines_pos_history[k][l] = lines_pos_history[k-1][l];
 			}
 			//the actual position is stored into the first position of history
-			lines_pos_history[0][l] = lines_position[l];
+			lines_pos_history[0][l] = new_lines_pos[l];
 		}
 
 		//Outlier detection and substitution: not used if we are in the first image acquisition
 			//outlier detection margin left
-		if((lines_position[0] > lines_pos_history[1][0]+MIN_LINE_WIDTH) || (lines_position[0] < lines_pos_history[1][0]-MIN_LINE_WIDTH) ||
-			(lines_position[0] > lines_pos_history[2][0]+MIN_LINE_WIDTH) || (lines_position[0] < lines_pos_history[2][0]-MIN_LINE_WIDTH) ||
-			(lines_position[0] > lines_pos_history[3][0]+MIN_LINE_WIDTH) || (lines_position[0] < lines_pos_history[3][0]-MIN_LINE_WIDTH) ||
-			(lines_position[0] > lines_pos_history[4][0]+MIN_LINE_WIDTH) || (lines_position[0] < lines_pos_history[4][0]-MIN_LINE_WIDTH) ||
-			(lines_position[0] > lines_pos_history[5][0]+MIN_LINE_WIDTH) || (lines_position[0] < lines_pos_history[5][0]-MIN_LINE_WIDTH) ||
-			(lines_position[0] > lines_pos_history[6][0]+MIN_LINE_WIDTH) || (lines_position[0] < lines_pos_history[6][0]-MIN_LINE_WIDTH) ||
-			(lines_position[0] > lines_pos_history[7][0]+MIN_LINE_WIDTH) || (lines_position[0] < lines_pos_history[7][0]-MIN_LINE_WIDTH) ||
-			(lines_position[0] > lines_pos_history[8][0]+MIN_LINE_WIDTH) || (lines_position[0] < lines_pos_history[8][0]-MIN_LINE_WIDTH) ||
-			(lines_position[0] > lines_pos_history[9][0]+MIN_LINE_WIDTH) || (lines_position[0] < lines_pos_history[9][0]-MIN_LINE_WIDTH)){
+		if((new_lines_pos[0] > lines_pos_history[1][0]+MIN_LINE_WIDTH) || (new_lines_pos[0] < lines_pos_history[1][0]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[0] > lines_pos_history[2][0]+MIN_LINE_WIDTH) || (new_lines_pos[0] < lines_pos_history[2][0]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[0] > lines_pos_history[3][0]+MIN_LINE_WIDTH) || (new_lines_pos[0] < lines_pos_history[3][0]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[0] > lines_pos_history[4][0]+MIN_LINE_WIDTH) || (new_lines_pos[0] < lines_pos_history[4][0]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[0] > lines_pos_history[5][0]+MIN_LINE_WIDTH) || (new_lines_pos[0] < lines_pos_history[5][0]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[0] > lines_pos_history[6][0]+MIN_LINE_WIDTH) || (new_lines_pos[0] < lines_pos_history[6][0]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[0] > lines_pos_history[7][0]+MIN_LINE_WIDTH) || (new_lines_pos[0] < lines_pos_history[7][0]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[0] > lines_pos_history[8][0]+MIN_LINE_WIDTH) || (new_lines_pos[0] < lines_pos_history[8][0]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[0] > lines_pos_history[9][0]+MIN_LINE_WIDTH) || (new_lines_pos[0] < lines_pos_history[9][0]-MIN_LINE_WIDTH)){
 				history_mean = 0;
 				i=0;
 				for(i=1; i<10; i++){
 					history_mean += lines_pos_history[i][0];
 				}
 				history_mean /= 9;
-				lines_position[0] = history_mean;
+				new_lines_pos[0] = history_mean;
 			}
 			//outlier detection margin right
-		if((lines_position[2] > lines_pos_history[1][2]+MIN_LINE_WIDTH) || (lines_position[2] < lines_pos_history[1][2]-MIN_LINE_WIDTH) ||
-			(lines_position[2] > lines_pos_history[2][2]+MIN_LINE_WIDTH) || (lines_position[2] < lines_pos_history[2][2]-MIN_LINE_WIDTH) ||
-			(lines_position[2] > lines_pos_history[3][2]+MIN_LINE_WIDTH) || (lines_position[2] < lines_pos_history[3][2]-MIN_LINE_WIDTH) ||
-			(lines_position[2] > lines_pos_history[4][2]+MIN_LINE_WIDTH) || (lines_position[2] < lines_pos_history[4][2]-MIN_LINE_WIDTH) ||
-			(lines_position[2] > lines_pos_history[5][2]+MIN_LINE_WIDTH) || (lines_position[2] < lines_pos_history[5][2]-MIN_LINE_WIDTH) ||
-			(lines_position[2] > lines_pos_history[6][2]+MIN_LINE_WIDTH) || (lines_position[2] < lines_pos_history[6][2]-MIN_LINE_WIDTH) ||
-			(lines_position[2] > lines_pos_history[7][2]+MIN_LINE_WIDTH) || (lines_position[2] < lines_pos_history[7][2]-MIN_LINE_WIDTH) ||
-			(lines_position[2] > lines_pos_history[8][2]+MIN_LINE_WIDTH) || (lines_position[2] < lines_pos_history[8][2]-MIN_LINE_WIDTH) ||
-			(lines_position[2] > lines_pos_history[9][2]+MIN_LINE_WIDTH) || (lines_position[2] < lines_pos_history[9][2]-MIN_LINE_WIDTH)){
+		if((new_lines_pos[2] > lines_pos_history[1][2]+MIN_LINE_WIDTH) || (new_lines_pos[2] < lines_pos_history[1][2]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[2] > lines_pos_history[2][2]+MIN_LINE_WIDTH) || (new_lines_pos[2] < lines_pos_history[2][2]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[2] > lines_pos_history[3][2]+MIN_LINE_WIDTH) || (new_lines_pos[2] < lines_pos_history[3][2]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[2] > lines_pos_history[4][2]+MIN_LINE_WIDTH) || (new_lines_pos[2] < lines_pos_history[4][2]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[2] > lines_pos_history[5][2]+MIN_LINE_WIDTH) || (new_lines_pos[2] < lines_pos_history[5][2]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[2] > lines_pos_history[6][2]+MIN_LINE_WIDTH) || (new_lines_pos[2] < lines_pos_history[6][2]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[2] > lines_pos_history[7][2]+MIN_LINE_WIDTH) || (new_lines_pos[2] < lines_pos_history[7][2]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[2] > lines_pos_history[8][2]+MIN_LINE_WIDTH) || (new_lines_pos[2] < lines_pos_history[8][2]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[2] > lines_pos_history[9][2]+MIN_LINE_WIDTH) || (new_lines_pos[2] < lines_pos_history[9][2]-MIN_LINE_WIDTH)){
 				history_mean = 0;
 				i=0;
 				for(i=1; i<10; i++){
 					history_mean += lines_pos_history[i][2];
 				}
 				history_mean /= 9;
-				lines_position[2] = history_mean;
+				new_lines_pos[2] = history_mean;
 			}
 			//outlier detection note -> is it the same than the 2 previous
-		if((lines_position[1] > lines_pos_history[1][1]+MIN_LINE_WIDTH) || (lines_position[1] < lines_pos_history[1][1]-MIN_LINE_WIDTH) ||
-			(lines_position[1] > lines_pos_history[2][1]+MIN_LINE_WIDTH) || (lines_position[1] < lines_pos_history[2][1]-MIN_LINE_WIDTH) ||
-			(lines_position[1] > lines_pos_history[3][1]+MIN_LINE_WIDTH) || (lines_position[1] < lines_pos_history[3][1]-MIN_LINE_WIDTH) ||
-			(lines_position[1] > lines_pos_history[4][1]+MIN_LINE_WIDTH) || (lines_position[1] < lines_pos_history[4][1]-MIN_LINE_WIDTH) ||
-			(lines_position[1] > lines_pos_history[5][1]+MIN_LINE_WIDTH) || (lines_position[1] < lines_pos_history[5][1]-MIN_LINE_WIDTH) ||
-			(lines_position[1] > lines_pos_history[6][1]+MIN_LINE_WIDTH) || (lines_position[1] < lines_pos_history[6][1]-MIN_LINE_WIDTH) ||
-			(lines_position[1] > lines_pos_history[7][1]+MIN_LINE_WIDTH) || (lines_position[1] < lines_pos_history[7][1]-MIN_LINE_WIDTH) ||
-			(lines_position[1] > lines_pos_history[8][1]+MIN_LINE_WIDTH) || (lines_position[1] < lines_pos_history[8][1]-MIN_LINE_WIDTH) ||
-			(lines_position[1] > lines_pos_history[9][1]+MIN_LINE_WIDTH) || (lines_position[1] < lines_pos_history[4][1]-MIN_LINE_WIDTH)){
+		if((new_lines_pos[1] > lines_pos_history[1][1]+MIN_LINE_WIDTH) || (new_lines_pos[1] < lines_pos_history[1][1]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[1] > lines_pos_history[2][1]+MIN_LINE_WIDTH) || (new_lines_pos[1] < lines_pos_history[2][1]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[1] > lines_pos_history[3][1]+MIN_LINE_WIDTH) || (new_lines_pos[1] < lines_pos_history[3][1]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[1] > lines_pos_history[4][1]+MIN_LINE_WIDTH) || (new_lines_pos[1] < lines_pos_history[4][1]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[1] > lines_pos_history[5][1]+MIN_LINE_WIDTH) || (new_lines_pos[1] < lines_pos_history[5][1]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[1] > lines_pos_history[6][1]+MIN_LINE_WIDTH) || (new_lines_pos[1] < lines_pos_history[6][1]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[1] > lines_pos_history[7][1]+MIN_LINE_WIDTH) || (new_lines_pos[1] < lines_pos_history[7][1]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[1] > lines_pos_history[8][1]+MIN_LINE_WIDTH) || (new_lines_pos[1] < lines_pos_history[8][1]-MIN_LINE_WIDTH) ||
+			(new_lines_pos[1] > lines_pos_history[9][1]+MIN_LINE_WIDTH) || (new_lines_pos[1] < lines_pos_history[4][1]-MIN_LINE_WIDTH)){
 				history_mean = 0;
 				i=0;
 				for(i=1; i<10; i++){
 					history_mean += lines_pos_history[i][1];
 				}
 				history_mean /= 9;
-				lines_position[1] = history_mean;
+				new_lines_pos[1] = history_mean;
 			}
 	}
 	//Error: if more than MAX_LINE_NBR is detected, nothing is played, and the 2 border-lines are taken as margins.
@@ -262,9 +263,9 @@ void outlier_detection(uint16_t *lines_position, uint16_t (*lines_pos_history)[M
 		//error
 		//TO DO: on vit sur l'historique un moment puis on coupe les moteurs et on lance le protocole de fin
 
-		lines_position[0] = 1;//lines_pos_history[1][0];
-		lines_position[1] = 1;//lines_pos_history[1][1];
-		lines_position[2] = 1;//lines_pos_history[1][2];
+		new_lines_pos[0] = 1;//lines_pos_history[1][0];
+		new_lines_pos[1] = 1;//lines_pos_history[1][1];
+		new_lines_pos[2] = 1;//lines_pos_history[1][2];
 
 		//TO DO: si ça fait trop longtemps juste annule toute sorti -> lines_pos_history = 0
 	}

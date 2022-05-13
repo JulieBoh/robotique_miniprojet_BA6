@@ -7,7 +7,7 @@
 
 
 void process_image_start(void);
-uint16_t * image_analyse(const uint8_t* image);
+void image_analyse(const uint8_t* image);
 void outlier_detection(uint16_t* lines_position, uint16_t (*lines_pos_history)[MAX_LINE_NBR], uint8_t line_nbr);
 void sendnote2buzzer(uint16_t* pos_ptr);
 void path_processing(uint16_t* pos_ptr);
