@@ -18,6 +18,7 @@ extern messagebus_t bus;
 
 extern parameter_namespace_t parameter_root;
 
+extern binary_semaphore_t note_ready_sem;
 
 /* debug purposes*/
 void SendUint8ToComputer(uint8_t* data, uint16_t size);

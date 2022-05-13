@@ -49,6 +49,7 @@ messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
 
+BSEMAPHORE_DECL(note_ready_sem, FALSE);
 
 // MAIN //
 int main(void)
@@ -82,10 +83,10 @@ int main(void)
 
 	//sound init
 	dac_start();
-	playMelodyStart();
+//	playMelodyStart();
 	//starts the threads
-	sound_start();
 	process_image_start();
+	sound_start();
 
     /* Infinite loop. */
     while (1) {
