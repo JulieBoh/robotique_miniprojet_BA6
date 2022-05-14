@@ -77,7 +77,7 @@ int main(void)
 //	playMelodyStart();
 	//starts the threads
 	process_image_start();
-	pi_regulator_start();
+//	pi_regulator_start();
 
     /* Infinite loop. */
     while (1) {

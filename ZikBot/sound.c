@@ -32,7 +32,7 @@ static THD_FUNCTION(PiRegulator, arg) {
     while(1)
         {
          	set_led(LED3, 2);
-//         	playNote(get_note(), NOTE_DURATION); //chut
+         	playNote(get_note(), NOTE_DURATION); //chut
             chThdSleepMilliseconds(500);
          }
 }

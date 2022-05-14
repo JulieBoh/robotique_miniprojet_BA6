@@ -7,10 +7,6 @@
 
 
 void process_image_start(void);
-void image_analyse(const uint8_t* image);
-void outlier_detection(uint16_t* lines_position, uint16_t (*lines_pos_history)[MAX_LINE_NBR], uint8_t line_nbr);
-void sendnote2buzzer(uint16_t* pos_ptr);
-void path_processing(uint16_t* pos_ptr);
-uint8_t get_rel_pos(void);
+
 
 #endif /* PROCESS_IMAGE_H */
