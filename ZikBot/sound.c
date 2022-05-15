@@ -43,7 +43,7 @@ static THD_FUNCTION(Sound, arg) {
 }
 
 void sound_start(void){
-	chThdCreateStatic(waSound, sizeof(waSound), (NORMALPRIO +20), Sound, NULL);
+	chThdCreateStatic(waSound, sizeof(waSound), (NORMALPRIO), Sound, NULL);
 }
 
 
