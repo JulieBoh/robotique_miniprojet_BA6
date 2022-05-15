@@ -1,15 +1,13 @@
 #include "ch.h"
 #include "hal.h"
-#include <stdint.h>
-#include <chprintf.h>
-#include <leds.h>
 #include <msgbus/messagebus.h>
 #include <sensors/proximity.h>
-
-#include <main.h>
 #include <motors.h>
-#include <move.h>
-#include <process_image.h>
+
+#include <stdint.h>
+
+#include "main.h"
+#include "move.h"
 
 #define DEFAULT_BASE_SPEED 400
 #define BASE_SPEED_LIMIT 900 //for the purpose of this project

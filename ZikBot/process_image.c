@@ -1,21 +1,25 @@
 #include "ch.h"
 #include "hal.h"
-#include <chprintf.h>
-#include <usbcfg.h>
-
 #include <camera/po8030.h>
-#include <leds.h>
-#include <math.h>
+#include <camera/dcmi_camera.h>
 
-#include <main.h>
-#include <process_image.h>
+#include "main.h"
+#include "process_image.h"
 #include "move.h"
+
+//MACROS
+#define ABS(x) (((x)<0) ? -(x) : (x))
+
 //DEFINE
 #define NOISE_RATIO 0.15
 #define MIN_LINE_WIDTH 10
 #define LINES_POS_HISTORY_SIZE 10
 #define SLOPE_WIDTH 5
-#define BASE_MOTOR_SPEED 400
+
+uint16_t * image_analyse(const uint8_t* image);
+void outlier_detection(uint16_t* lines_position, uint16_t (*lines_pos_history)[MAX_LINE_NBR], uint8_t line_nbr);
+void sendnote2buzzer(uint16_t* pos_ptr);
+void path_processing(uint16_t* pos_ptr);
 
 //global
 uint16_t note_rel_pos = 0; //[%]
@@ -23,10 +27,9 @@ uint16_t note_rel_pos = 0; //[%]
 //semaphore
 static BSEMAPHORE_DECL(image_captured_sem, TRUE);
 
-// CAPTURE IMAGE BOTTOM THREAD //
-// The purpose of this thread is to make an acquisition of an image. This image is made by 2 segments: one up and one bottom
-static THD_WORKING_AREA(waCaptureImageBottom, 256);
-static THD_FUNCTION(CaptureImageBottom, arg) {
+// CAPTURE IMAGE THREAD //
+static THD_WORKING_AREA(waCaptureImage, 256);
+static THD_FUNCTION(CaptureImage, arg) {
 
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
@@ -47,7 +50,7 @@ static THD_FUNCTION(CaptureImageBottom, arg) {
     }
 }
 // PROCESS IMAGE THREAD //
-// The purpose of this thread is to analyse the image, to deduce a note and a path and to actuate the motor to track the path.
+// The purpose of this thread is to analyse the image, to deduce a note and to compute a correction speed for the motors.
 
 static THD_WORKING_AREA(waProcessImage, 2048);// TEST 1024
 static THD_FUNCTION(ProcessImage, arg) {
@@ -55,15 +58,12 @@ static THD_FUNCTION(ProcessImage, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
 
-//	uint8_t image_resultat[IMAGE_BUFFER_SIZE] = {0};
 	uint8_t image[IMAGE_BUFFER_SIZE];
 
 	uint8_t * image_buffer;
 	uint16_t* pos_ptr; //bottom margins positions [left, right]
 
 	uint16_t pos[MAX_LINE_NBR]; //bottom margins positions [left, right]
-
-	bool send_to_computer = true;
 
 	while(1){
 		//waits until an image has been captured
@@ -79,7 +79,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 				//MSBs of low byte
 			uint8_t pix_lo = image_buffer[i+1];
 			pix_lo = (0b11100000 & pix_lo)>>5;
-				//combine both in image to be sent
+				//combine both in image
 			image[i/2] = pix_hi | pix_lo;
 		}
 
@@ -96,29 +96,12 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 		// Calculate path's center and angle
 		path_processing(pos);
-
-		// Send to computer (debug purposes)
-		if(send_to_computer){
-			//sends to the computer the image
-			/*for(int i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
-				image_resultat[i] = 0;
-			}*/
-			for(uint8_t i = 0; i<MAX_LINE_NBR; i++){
-				if(pos[i] !=0)
-					image[note_rel_pos] = 100;
-			}
-			SendUint8ToComputer(image, IMAGE_BUFFER_SIZE);
-		}
-		//invert the bool
-		send_to_computer = !send_to_computer;
-		
 	}
 }
 
-
 void process_image_start(void){
 	chThdCreateStatic(waProcessImage, sizeof(waProcessImage), NORMALPRIO, ProcessImage, NULL);
-	chThdCreateStatic(waCaptureImageBottom, sizeof(waCaptureImageBottom), NORMALPRIO, CaptureImageBottom, NULL);
+	chThdCreateStatic(waCaptureImage, sizeof(waCaptureImage), NORMALPRIO, CaptureImage, NULL);
 }
 
 uint16_t * image_analyse(const uint8_t* image){
@@ -134,11 +117,10 @@ uint16_t * image_analyse(const uint8_t* image){
 	static uint16_t begin_history[LINES_POS_HISTORY_SIZE][MAX_LINE_NBR] = {0};
 	static uint16_t end_history[LINES_POS_HISTORY_SIZE][MAX_LINE_NBR] = {0};
 
-	//performs an average to now the noise threshold
+	//performs an average to calculate the noise threshold
 	for(i = 0 ; i < IMAGE_BUFFER_SIZE -1 ; i++){
 		mean += image[i];
 	}
-
 	mean /= IMAGE_BUFFER_SIZE;
 	noise = mean * NOISE_RATIO;
 	
@@ -177,12 +159,12 @@ uint16_t * image_analyse(const uint8_t* image){
 	if(line_nbr == 3){
 		lines_position[1] = (end[1]+begin[1])/2;
 	}
-	else{
+	else
 		lines_position[1] = 0;
-	}
+
 	return lines_position;
 }
-/* TO DO*/
+
 void outlier_detection(uint16_t *lines_position, uint16_t (*lines_pos_history)[MAX_LINE_NBR], uint8_t line_nbr){
 	uint8_t i = 0;
 	uint16_t history_mean = 0;
@@ -281,12 +263,10 @@ void path_processing(uint16_t* pos_ptr){
 	int16_t robot_angle = ((pos_ptr[0]+pos_ptr[2])/2.) - (IMAGE_BUFFER_SIZE/2);
 	
 	//filter
-	if(abs(robot_angle)>200)
+	if(ABS(robot_angle)>200)
 		robot_angle = 0;
 	speed_corr = (3*robot_angle/5) + 2*speed_corr/5;
-
 	//move
 	move(speed_corr);
-	//return robot_angle;
 }
 

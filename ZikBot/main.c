@@ -1,48 +1,16 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-
 #include "ch.h"
 #include "hal.h"
 #include "memory_protection.h"
-#include <usbcfg.h>
-#include <chprintf.h>
 #include <main.h>
 #include <motors.h>
 #include <camera/po8030.h>
 #include <sensors/proximity.h>
 #include <audio/audio_thread.h>
-#include <audio/play_melody.h>
 #include <leds.h>
-#include <move.h>
 
-#include <pi_regulator.h>
-#include <process_image.h>
-#include <sound.h>
-
-// COMMUNICATION //
-void SendUint8ToComputer(uint8_t* data, uint16_t size) 
-{
-	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)"START", 5);
-	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)&size, sizeof(uint16_t));
-	chSequentialStreamWrite((BaseSequentialStream *)&SD3, (uint8_t*)data, size);
-}
-
-
-static void serial_start(void)
-{
-	static SerialConfig ser_cfg = {
-	    115200,
-	    0,
-	    0,
-	    0,
-	};
-
-	sdStart(&SD3, &ser_cfg); // UART3.
-}
-/** END OF DEBUG FUCTIONS **/
-
+#include "move.h"
+#include "process_image.h"
+#include "sound.h"
 
 // bus declaration
 messagebus_t bus;
@@ -61,12 +29,6 @@ int main(void)
 
     // bus init
     messagebus_init(&bus, &bus_lock, &bus_condvar);
-
-    /*debug purposes*/
-    //starts the serial communication
-    serial_start();
-    //start the USB communication
-    usb_start();
 
 	//LEDS: light under mirror
 	set_body_led(1);
@@ -93,7 +55,7 @@ int main(void)
     /* Infinite loop. */
     while (1) {
     	//waits 1 second
-        chThdSleepMilliseconds(200);
+        chThdSleepMilliseconds(1000);
     }
 }
 
