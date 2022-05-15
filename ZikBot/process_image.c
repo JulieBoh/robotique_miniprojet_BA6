@@ -3,14 +3,13 @@
 #include <chprintf.h>
 #include <usbcfg.h>
 
-#include <main.h>
 #include <camera/po8030.h>
 #include <leds.h>
 #include <math.h>
 
+#include <main.h>
 #include <process_image.h>
-#include <motors.h>
-
+#include "move.h"
 //DEFINE
 #define NOISE_RATIO 0.15
 #define MIN_LINE_WIDTH 10
@@ -278,18 +277,16 @@ void sendnote2buzzer(uint16_t* pos_ptr){
 }
 
 void path_processing(uint16_t* pos_ptr){
-	static int16_t motor_speed = 0;
+	static int16_t speed_corr = 0;
 	int16_t robot_angle = ((pos_ptr[0]+pos_ptr[2])/2.) - (IMAGE_BUFFER_SIZE/2);
 	
 	//filter
 	if(abs(robot_angle)>200)
 		robot_angle = 0;
-	motor_speed = (3*robot_angle/5) + 2*motor_speed/5;
+	speed_corr = (3*robot_angle/5) + 2*speed_corr/5;
 
-	//motor
-	right_motor_set_speed(BASE_MOTOR_SPEED-motor_speed);
-	left_motor_set_speed(BASE_MOTOR_SPEED+motor_speed);
-
+	//move
+	move(speed_corr);
 	//return robot_angle;
 }
 

@@ -15,10 +15,10 @@
 #include <audio/audio_thread.h>
 #include <audio/play_melody.h>
 #include <leds.h>
+#include <move.h>
 
 #include <pi_regulator.h>
 #include <process_image.h>
-#include <tempo.h>
 #include <sound.h>
 
 // COMMUNICATION //
@@ -74,8 +74,6 @@ int main(void)
     //starts the camera
     dcmi_start();
 	po8030_start();
-	//inits the motors
-	motors_init();
 
 	//IR init
 	proximity_start();
@@ -83,7 +81,11 @@ int main(void)
 
 	//sound init
 	dac_start();
-//	playMelodyStart();
+
+	//move module start
+	motors_init();
+	move_init();
+
 	//starts the threads
 	process_image_start();
 	sound_start();

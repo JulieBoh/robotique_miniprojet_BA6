@@ -9,9 +9,9 @@
 //debug purposes
 #include "leds.h"
 #include <chprintf.h>
+#include <move.h>
 
 #include "sound.h"
-#include "tempo.h"
 #include "process_image.h"
 
 #define CM_TO_STEPS(cm) (1000*(cm)/13) //converts distances for e-puck2 motors
@@ -34,7 +34,6 @@ static THD_FUNCTION(Sound, arg) {
 
     while(1)
     {
-     	set_led(LED3, 2);
 //		time = chVTGetSystemTime();
     	playNote(get_note(), NOTE_DURATION); //chut
 
