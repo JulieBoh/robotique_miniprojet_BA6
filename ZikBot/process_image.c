@@ -7,19 +7,19 @@
 #include <camera/po8030.h>
 #include <leds.h>
 #include <math.h>
-#include <motors.h>
 
 #include <process_image.h>
+#include <motors.h>
 
 //DEFINE
 #define NOISE_RATIO 0.15
 #define MIN_LINE_WIDTH 10
 #define LINES_POS_HISTORY_SIZE 10
 #define SLOPE_WIDTH 5
-#define BASE_MOTOR_SPEED 200
+#define BASE_MOTOR_SPEED 400
 
 //global
-static uint8_t note_rel_pos; //[%]
+uint16_t note_rel_pos = 0; //[%]
 
 //semaphore
 static BSEMAPHORE_DECL(image_captured_sem, TRUE);
@@ -56,7 +56,7 @@ static THD_FUNCTION(ProcessImage, arg) {
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
 
-	//uint8_t image_resultat[IMAGE_BUFFER_SIZE] = {0};
+//	uint8_t image_resultat[IMAGE_BUFFER_SIZE] = {0};
 	uint8_t image[IMAGE_BUFFER_SIZE];
 
 	uint8_t * image_buffer;
@@ -64,7 +64,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 	uint16_t pos[MAX_LINE_NBR]; //bottom margins positions [left, right]
 
-//	bool send_to_computer = true;
+	bool send_to_computer = true;
 
 	while(1){
 		//waits until an image has been captured
@@ -72,7 +72,7 @@ static THD_FUNCTION(ProcessImage, arg) {
 
 		image_buffer = dcmi_get_last_image_ptr();
 
-		for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE*4 ; i+=2){
+		for(uint16_t i = 0 ; i < IMAGE_BUFFER_SIZE*2 ; i+=2){
 			//Extracts only the green pixels
 				// LSBs of high byte
 			uint8_t pix_hi = image_buffer[i];
@@ -99,19 +99,19 @@ static THD_FUNCTION(ProcessImage, arg) {
 		path_processing(pos);
 
 		// Send to computer (debug purposes)
-//		if(send_to_computer){
-//			//sends to the computer the image
-//			/*for(int i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
-//				image_resultat[i] = 0;
-//			}*/
-//			for(uint8_t i = 0; i<MAX_LINE_NBR; i++){
-//				if(pos[i] !=0)
-//					image[note_rel_pos] = 100;
-//			}
-//			SendUint8ToComputer(image, IMAGE_BUFFER_SIZE);
-//		}
-//		//invert the bool
-//		send_to_computer = !send_to_computer;
+		if(send_to_computer){
+			//sends to the computer the image
+			/*for(int i = 0 ; i < IMAGE_BUFFER_SIZE ; i++){
+				image_resultat[i] = 0;
+			}*/
+			for(uint8_t i = 0; i<MAX_LINE_NBR; i++){
+				if(pos[i] !=0)
+					image[note_rel_pos] = 100;
+			}
+			SendUint8ToComputer(image, IMAGE_BUFFER_SIZE);
+		}
+		//invert the bool
+		send_to_computer = !send_to_computer;
 		
 	}
 }
@@ -272,19 +272,10 @@ void outlier_detection(uint16_t *lines_position, uint16_t (*lines_pos_history)[M
 
 void sendnote2buzzer(uint16_t* pos_ptr){
 	//relative note position
-	note_rel_pos = (pos_ptr[1]-pos_ptr[0])*100/(pos_ptr[2]-pos_ptr[0]); //in % to avoid a float
-	chBSemSignal(&note_ready_sem);
-
-	//calcul le deta temps
-
-	//envoie note + temps
+	note_rel_pos = (pos_ptr[1]-pos_ptr[0])*FULL_SCALE/(pos_ptr[2]-pos_ptr[0]); //in % to avoid a float
+	if(pos_ptr[1] == 0)
+		note_rel_pos = 0;
 }
-
-uint8_t get_rel_pos(void)
-{
-	return note_rel_pos;
-}
-
 
 void path_processing(uint16_t* pos_ptr){
 	static int16_t motor_speed = 0;

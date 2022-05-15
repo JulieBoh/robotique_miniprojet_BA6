@@ -2,7 +2,6 @@
 #include "hal.h"
 #include <stdint.h>
 #include <audio/play_melody.h>
-#include "audio/audio_thread.h"
 #include <msgbus/messagebus.h>
 #include <motors.h>
 #include <sensors/proximity.h>
@@ -11,7 +10,6 @@
 #include "leds.h"
 #include <chprintf.h>
 
-#include "main.h"
 #include "sound.h"
 #include "tempo.h"
 #include "process_image.h"
@@ -23,48 +21,47 @@
 
 static uint16_t get_note(void);
 
-
 static THD_WORKING_AREA(waSound, 256);
 static THD_FUNCTION(Sound, arg) {
 
     chRegSetThreadName(__FUNCTION__);
     (void)arg;
 
+//    int16_t default_speed = 0;
+//	messagebus_topic_t *proximity_topic = messagebus_find_topic_blocking(&bus, "/proximity");
+//	static uint8_t running = 0;
+//	systime_t time;
+
     while(1)
     {
      	set_led(LED3, 2);
 //		time = chVTGetSystemTime();
-//    	playNote(get_note(), NOTE_DURATION); //chut
-     	uint16_t note = get_note();
-     	if(note != 0){
-     			dac_play(note);
-     		}
-		chBSemWait(&note_ready_sem);
-     	dac_stop();
+    	playNote(get_note(), NOTE_DURATION); //chut
+
 //		chThdSleepUntilWindowed(time, time + MS2ST(200));
-     }
+    }
 }
 
 void sound_start(void){
-	chThdCreateStatic(waSound, sizeof(waSound), (NORMALPRIO+1), Sound, NULL);
+	chThdCreateStatic(waSound, sizeof(waSound), (NORMALPRIO), Sound, NULL);
 }
 
 
-#define SCALE_SIZE 5
-#define REL_POS_THRESHOLD (100/SCALE_SIZE)
-//static const uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C4, NOTE_D4, NOTE_E4, NOTE_F4, NOTE_G4, NOTE_A4, NOTE_B4, NOTE_C5};
-static const uint16_t c_major_scale[SCALE_SIZE] = {NOTE_C4, NOTE_E4, NOTE_G4, NOTE_B4, NOTE_D4};
+#define NB_NOTES 8 //
+#define REL_POS_THRESHOLD (FULL_SCALE/NB_NOTES)
+static const uint16_t notes[NB_NOTES] = {NOTE_C4, NOTE_D4, NOTE_E4, NOTE_F4, NOTE_G4, NOTE_A4, NOTE_B4, NOTE_C5};
+//static const uint16_t notes[NB_NOTES] = {NOTE_C4, NOTE_E4, NOTE_G4, NOTE_B4, NOTE_D5};
 
 static uint16_t get_note(void)
 {
-	uint8_t rel_pos = get_rel_pos();
-
-	if(rel_pos == 0)
+	if(note_rel_pos == 0)
 		return 0;
-    for(uint8_t i=0; i < SCALE_SIZE; i++){
-    	if(rel_pos < (i+1)*REL_POS_THRESHOLD){
-        	return c_major_scale[i];
+    for(uint16_t i=0; i < NB_NOTES; i++)
+    {
+      	if(note_rel_pos < (i+1)*REL_POS_THRESHOLD)
+      	{
+        	return notes[i];
 		}
     }
-    return 0;//in case we're out of luck
+    return 0;
 }
