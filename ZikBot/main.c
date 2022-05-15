@@ -1,13 +1,13 @@
 #include "ch.h"
 #include "hal.h"
 #include "memory_protection.h"
-#include <main.h>
 #include <motors.h>
 #include <camera/po8030.h>
 #include <sensors/proximity.h>
 #include <audio/audio_thread.h>
 #include <leds.h>
 
+#include "main.h"
 #include "move.h"
 #include "process_image.h"
 #include "sound.h"
