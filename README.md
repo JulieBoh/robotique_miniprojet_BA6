@@ -1,6 +1,6 @@
 # ZIKBOT: robot lecteur de partition
 Mini-projet de robotique (BA6 - EPFL) sur e-puck par: Julie Böhning et Timothée Bader. 
-![image](media/vue_ensemble.jpeg)
+![image](media/vue_ensemble.jpg)
 
 ### L'objectif
 Le but de ce robot et de suivre une partition qui prend la forme de chemin et de jouer les notes lues au fil de son parcours. Les partitions peuvent comportée des virages et être dessinées à la main. Les notes pouvant être jouées sont celles de la gamme. 
